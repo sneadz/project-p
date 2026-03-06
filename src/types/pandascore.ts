@@ -25,11 +25,17 @@ export interface PandaScoreMatch {
   }>
   status: 'not_started' | 'running' | 'finished' | 'postponed' | 'canceled'
   number_of_games: number
+  tournament_id: number
+  tournament: {
+    id: number
+    name: string
+  }
   results: Array<{
     team_id: number
     score: number
   }>
   winner_id: number | null
+  scheduled_at: string
 }
 
 export interface PandaScoreSerie {
