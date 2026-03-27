@@ -1,13 +1,13 @@
 import { getMatchesBySerie, getSerieById } from '@/lib/pandascore'
-import { MatchCard } from '@/components/match-card'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, Trophy, Calendar, Gamepad2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { JoinButton } from '@/components/join-button'
 import { ScrollToUpcoming } from '@/components/scroll-to-upcoming'
+import { MatchGroups } from '@/components/match-groups'
+import { StickyJoinBar } from '@/components/sticky-join-bar'
 import { PandaScoreMatch } from '@/types/pandascore'
 
 interface SeriePageProps {
@@ -133,19 +133,22 @@ export default async function SeriePage({ params }: SeriePageProps) {
   const firstUpcomingMatch = matches.find(m => m.status !== 'finished' && m.status !== 'canceled')
 
   return (
-    <main className="min-h-screen bg-background text-foreground pb-20">
+    <main className="min-h-screen bg-background text-foreground pb-24">
       <ScrollToUpcoming matchId={firstUpcomingMatch?.id || null} />
-      {/* Navbar Minimaliste */}
-      <nav className="border-b border-primary/20 bg-card/50 py-4 backdrop-blur sticky top-0 z-50">
-        <div className="container mx-auto flex items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2 group">
-            <ChevronLeft className="h-5 w-5 text-primary group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm font-bold uppercase tracking-widest group-hover:text-primary transition-colors">Retour</span>
-          </Link>
-          <h1 className="text-xl font-black tracking-tighter text-primary">PROJECT P</h1>
-          <div className="w-20"></div> {/* Spacer */}
-        </div>
-      </nav>
+      <StickyJoinBar
+        serieId={serieId}
+        isJoined={isJoined}
+        isLoggedIn={!!user}
+        leagueName={leagueName}
+        totalPoints={totalPoints}
+      />
+      {/* Back button */}
+      <div className="container mx-auto px-4 pt-6">
+        <Link href="/" className="inline-flex items-center gap-2 group text-muted-foreground hover:text-primary transition-colors">
+          <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-bold uppercase tracking-widest">Retour</span>
+        </Link>
+      </div>
 
       {/* Header de la Compétition */}
       <section className="relative py-12 overflow-hidden">
@@ -199,12 +202,9 @@ export default async function SeriePage({ params }: SeriePageProps) {
               <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-tight">
                 {leagueName}
               </h2>
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                <p className="text-lg text-muted-foreground max-w-2xl italic">
-                  {fullSerieName}
-                </p>
-                <JoinButton serieId={serieId} isJoined={isJoined} isLoggedIn={!!user} />
-              </div>
+              <p className="text-lg text-muted-foreground max-w-2xl italic">
+                {fullSerieName}
+              </p>
             </div>
           </div>
         </div>
@@ -220,35 +220,17 @@ export default async function SeriePage({ params }: SeriePageProps) {
           <span className="text-xs font-mono text-muted-foreground uppercase">{matches.length} MATCHS TROUVÉS</span>
         </div>
 
-        <div className="space-y-12">
-          {sortedTournamentNames.length > 0 ? (
-            sortedTournamentNames.map((phase) => (
-              <div key={phase} className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-primary/20"></div>
-                  <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-primary bg-primary/5 px-4 py-1 rounded-full border border-primary/10">
-                    {phase}
-                  </h4>
-                  <div className="h-px flex-1 bg-primary/20"></div>
-                </div>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {matchesByTournament[phase].map((match) => (
-                    <div key={match.id} id={`match-${match.id}`} className="scroll-mt-24">
-                      <MatchCard 
-                        match={match} 
-                        userBet={userBets[match.id]}
-                        isJoined={isJoined}
-                        serieId={serieId}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))
-          ) : (
-            <NoMatches />
-          )}
-        </div>
+        {sortedTournamentNames.length > 0 ? (
+          <MatchGroups
+            sortedTournamentNames={sortedTournamentNames}
+            matchesByTournament={matchesByTournament}
+            userBets={userBets}
+            isJoined={isJoined}
+            serieId={serieId}
+          />
+        ) : (
+          <NoMatches />
+        )}
       </section>
     </main>
   )

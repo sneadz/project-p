@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PROJECT P
 
-## Getting Started
+> Project P is an esports pick'em platform for CS2 & Valorant — predict match outcomes, earn points and climb the leaderboard.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Couche | Techno |
+|--:|---|
+| Framework | Next.js 14 (App Router) + TypeScript |
+| Style | Tailwind CSS + shadcn/ui |
+| Auth & Base de données | Supabase |
+| Données esport | PandaScore API |
+| Hébergement | Vercel + Supabase |
+
+## Authentification
+
+L'auth est gérée par **Supabase Auth** (email + password).
+
+- Inscription / connexion sur `/login`
+- Après inscription, un email de confirmation est envoyé
+- La session est gérée côté serveur via des cookies (middleware Next.js)
+- Déconnexion via POST sur `/auth/signout`
+
+Les variables d'environnement nécessaires :
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+PANDASCORE_API_KEY=...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Lancer le projet en local
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ouvrir [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Fonctionnalités
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Affichage des compétitions CS2 et Valorant (tier S/A via PandaScore)
+- Rejoindre une compétition
+- Parier sur les matchs avec des points fictifs
+- Classement des points par compétition
+- Leaderboard global (à venir)
+- Système d'amis et ligues privées (à venir)

@@ -90,12 +90,13 @@ export function MatchCard({ match, userBet, isJoined, serieId }: MatchCardProps)
   }
 
   const matchDateStr = match.begin_at || match.scheduled_at
-  const matchDate = matchDateStr ? new Date(matchDateStr).toLocaleString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit'
-  }) : 'À déterminer'
+  const matchDate = matchDateStr ? (() => {
+    const d = new Date(matchDateStr)
+    const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'juin', 'juil', 'août', 'sep', 'oct', 'nov', 'déc']
+    const h = d.getHours().toString().padStart(2, '0')
+    const m = d.getMinutes().toString().padStart(2, '0')
+    return `${d.getDate()} ${months[d.getMonth()]} ${h}:${m}`
+  })() : 'À déterminer'
 
   // Générer les scores possibles en fonction du BO
   const generateScores = (numGames: number) => {
