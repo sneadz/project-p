@@ -19,7 +19,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "PROJECT P | Esports Pick'em",
-  description: "Predict match outcomes, earn points and climb the global leaderboard.",
+  description: "Predict match outcomes, earn shards and climb the global leaderboard.",
 };
 
 export default function RootLayout({

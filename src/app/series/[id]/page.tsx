@@ -1,6 +1,7 @@
 import { getMatchesBySerie, getSerieById } from '@/lib/pandascore'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, Trophy, Calendar, Gamepad2 } from 'lucide-react'
+import { ChevronLeft, Gem, Calendar, Gamepad2, Trophy } from 'lucide-react'
+import { getGameSquare } from '@/lib/games'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
@@ -118,7 +119,8 @@ export default async function SeriePage({ params }: SeriePageProps) {
 
   // Fallback si la série est null mais qu'on a des matchs
   const leagueName = serie?.league?.name || (matches.length > 0 ? matches[0].league.name : 'Tournoi')
-  const leagueImage = serie?.image_url || serie?.league?.image_url || serie?.videogame?.image_url || (matches.length > 0 ? matches[0].league.image_url || matches[0].videogame.image_url : null)
+  const gameSlug = serie?.videogame?.slug || (matches.length > 0 ? matches[0].videogame.slug : '')
+  const gameSquare = getGameSquare(gameSlug)
   const fullSerieName = serie?.full_name || (matches.length > 0 ? matches[0].serie.full_name : 'Détails de la compétition')
   const videogameName = serie?.videogame?.name || (matches.length > 0 ? matches[0].videogame.name : '')
   const beginAt = serie?.begin_at || (matches.length > 0 ? (matches[0].begin_at || matches[0].scheduled_at) : null)
@@ -178,18 +180,16 @@ export default async function SeriePage({ params }: SeriePageProps) {
         <div className="absolute inset-0 bg-primary/10 -skew-y-3 transform origin-top-left -z-10"></div>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="relative h-40 w-40 flex-shrink-0 rounded-2xl bg-card/50 border border-primary/20 p-6 backdrop-blur shadow-2xl flex items-center justify-center overflow-hidden">
-              {leagueImage ? (
-                <div className="relative h-full w-full">
-                  <Image 
-                    src={leagueImage} 
-                    alt={leagueName} 
-                    fill 
-                    className="object-contain"
-                    sizes="160px"
-                    priority
-                  />
-                </div>
+            <div className="relative h-40 w-40 flex-shrink-0 rounded-2xl bg-card/50 border border-primary/20 backdrop-blur shadow-2xl flex items-center justify-center overflow-hidden">
+              {gameSquare ? (
+                <Image
+                  src={gameSquare}
+                  alt={videogameName}
+                  fill
+                  className="object-cover"
+                  sizes="160px"
+                  priority
+                />
               ) : (
                 <div className="flex flex-col h-full w-full items-center justify-center gap-2">
                   <Trophy className="h-16 w-16 text-primary/20" />
@@ -214,9 +214,9 @@ export default async function SeriePage({ params }: SeriePageProps) {
                 </div>
                 {isJoined && (
                   <div className="flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1 border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                    <Trophy className="h-3 w-3 text-green-500" />
+                    <Gem className="h-3 w-3 text-green-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-green-500">
-                      {totalPoints} POINT{totalPoints > 1 ? 'S' : ''}
+                      {totalPoints} SHARD{totalPoints > 1 ? 'S' : ''}
                     </span>
                   </div>
                 )}

@@ -5,6 +5,7 @@ import { Calendar, Trophy } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { getGameBanner } from "@/lib/games"
 
 interface SerieCardProps {
   serie: PandaScoreSerie
@@ -27,18 +28,15 @@ export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
     month: 'short',
   })
 
-  const leagueImage = serie.image_url || serie.league.image_url || serie.videogame.image_url
-
-  // Slug pour afficher une image de fallback basée sur le jeu si aucune image de ligue n'existe
   const gameSlug = serie.videogame.slug
-  const gameDefaultColor = gameSlug === 'valorant' ? 'border-red-500/50' : 'border-primary/50'
+  const gameBanner = getGameBanner(gameSlug)
 
   return (
     <Link href={`/series/${serie.id}`}>
       <Card className={`group relative h-full overflow-hidden bg-card/50 transition-all hover:bg-card/80
         ${isRegistered
           ? 'border-primary/60 hover:border-primary shadow-[0_0_12px_0px] shadow-primary/20'
-          : `border-primary/20 hover:border-white/50 ${gameDefaultColor}`
+          : 'border-zinc-500/70 hover:border-zinc-400'
         }`}>
         <CardHeader className="relative pb-0">
           {isRegistered && (
@@ -70,16 +68,14 @@ export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
             </div>
           </div>
           <div className="aspect-video relative w-full mb-4 overflow-hidden rounded-md bg-muted/10 border border-primary/5 flex items-center justify-center">
-            {leagueImage ? (
-              <div className="relative h-full w-full p-4">
-                <Image
-                  src={leagueImage}
-                  alt={serie.league.name}
-                  fill
-                  className="object-contain transition-transform group-hover:scale-110"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                />
-              </div>
+            {gameBanner ? (
+              <Image
+                src={gameBanner}
+                alt={serie.videogame.name}
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              />
             ) : (
               <div className="flex flex-col items-center justify-center gap-2">
                 <Trophy className="h-12 w-12 text-primary/20 animate-pulse" />

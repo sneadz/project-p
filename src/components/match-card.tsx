@@ -8,7 +8,7 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { placeBet } from '@/app/actions/competition'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2, Lock } from 'lucide-react'
+import { Loader2, Lock, Gem } from 'lucide-react'
 
 interface MatchCardProps {
   match: PandaScoreMatch
@@ -44,18 +44,18 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
     return `${s1}-${s2}`
   })() : null
 
-  // Calcul des points si terminé et parié
-  let pointsGained = 0
+  // Calcul des shards si terminé et parié
+  let shardsGained = 0
   if (isFinished && userBet && realScore) {
     if (userBet === realScore) {
-      pointsGained = 2
+      shardsGained = 2
     } else {
       const [bet1, bet2] = userBet.split('-').map(Number)
       const [real1, real2] = realScore.split('-').map(Number)
       const betWinner = bet1 > bet2 ? team1?.id : team2?.id
       const realWinner = real1 > real2 ? team1?.id : team2?.id
       if (betWinner === realWinner) {
-        pointsGained = 1
+        shardsGained = 1
       }
     }
   }
@@ -292,10 +292,10 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
              {userBet && (
                <div className={cn(
                  "py-2 px-3 flex items-center justify-between rounded-lg border text-[10px] font-bold uppercase tracking-wider",
-                 pointsGained > 0 ? "bg-green-500/10 border-green-500/20 text-green-500" : "bg-red-500/10 border-red-500/20 text-red-500"
+                 shardsGained > 0 ? "bg-green-500/10 border-green-500/20 text-green-500" : "bg-red-500/10 border-red-500/20 text-red-500"
                )}>
                  <span>Votre pari: {userBet}</span>
-                 <span>{pointsGained} POINT{pointsGained > 1 ? 'S' : ''}</span>
+                 <span className="flex items-center gap-1"><Gem className="h-3 w-3" />{shardsGained} SHARD{shardsGained > 1 ? 'S' : ''}</span>
                </div>
              )}
           </div>
