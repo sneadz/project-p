@@ -53,7 +53,7 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
 
       {/* Avatar actuel */}
       <div className="flex flex-col items-center gap-3">
-        <div className="h-24 w-24 rounded-full overflow-hidden border-2 border-primary/40 bg-card flex items-center justify-center">
+        <div className="h-24 w-24 rounded-xl overflow-hidden border-2 border-primary/40 bg-card flex items-center justify-center">
           {currentAvatarSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={currentAvatarSrc} alt="Avatar sélectionné" className="h-full w-full object-cover" />
@@ -74,7 +74,7 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
               <button
                 key={avatar.id}
                 onClick={() => setSelectedAvatar(avatar.id)}
-                className={`relative h-16 w-16 mx-auto rounded-full overflow-hidden border-2 transition-all duration-150
+                className={`relative h-16 w-16 mx-auto rounded-xl overflow-hidden border-2 transition-all duration-150
                   ${isSelected
                     ? 'border-primary scale-110 shadow-[0_0_10px_2px] shadow-primary/40'
                     : 'border-border hover:border-primary/50 hover:scale-105'
@@ -104,7 +104,6 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
-        <p className="text-xs text-muted-foreground">Affiché à la place de ton email dans l&apos;app.</p>
       </div>
 
       <Button

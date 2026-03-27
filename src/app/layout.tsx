@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Oxanium } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
 import Sidebar from "@/components/sidebar"
 import { MobileNav } from "@/components/mobile-nav"
 import { ThemeProvider } from "@/components/theme-provider"
+
+const oxanium = Oxanium({
+  subsets: ["latin"],
+  variable: "--font-oxanium",
+  weight: ["700", "800"],
+});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,8 +25,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "PROJECT P | Esports Pick'em",
-  description: "Predict match outcomes, earn shards and climb the global leaderboard.",
+  title: "grind.gg | Esports Pick'em",
+  description: "Grind the ladder, earn shards and climb the global leaderboard.",
 };
 
 export default function RootLayout({
@@ -29,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${oxanium.variable} antialiased bg-background`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
 
           {/* Desktop layout */}

@@ -113,7 +113,7 @@ export default async function LeaderboardPage() {
               </div>
 
               {/* Avatar */}
-              <div className={`rounded-full overflow-hidden border-2 bg-background flex items-center justify-center shrink-0 ${style?.avatar ?? 'h-10 w-10 border-primary/20'}`}>
+              <div className={`rounded-xl overflow-hidden border-2 bg-background flex items-center justify-center shrink-0 ${style?.avatar ?? 'h-10 w-10 border-primary/20'}`}>
                 {avatarSrc ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={avatarSrc} alt={displayName} className="h-full w-full object-cover" />
@@ -167,7 +167,7 @@ export default async function LeaderboardPage() {
               <div className="w-8 text-center shrink-0">
                 <span className="text-sm font-bold text-primary">#{currentRank}</span>
               </div>
-              <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-primary/30 bg-background flex items-center justify-center shrink-0">
+              <div className="h-10 w-10 rounded-xl overflow-hidden border-2 border-primary/30 bg-background flex items-center justify-center shrink-0">
                 {getAvatarSrc(currentPlayer.avatar_url) ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={getAvatarSrc(currentPlayer.avatar_url)!} alt="Vous" className="h-full w-full object-cover" />

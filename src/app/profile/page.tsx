@@ -105,7 +105,7 @@ export default async function ProfilePage() {
         {/* Header profil */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
-            <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-primary/40 bg-card flex items-center justify-center shrink-0">
+            <div className="h-20 w-20 rounded-xl overflow-hidden border-2 border-primary/40 bg-card flex items-center justify-center shrink-0">
               {avatarSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatarSrc} alt="Avatar" className="h-full w-full object-cover" />

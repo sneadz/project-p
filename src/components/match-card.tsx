@@ -17,9 +17,10 @@ interface MatchCardProps {
   isJoined?: boolean
   serieId?: number
   winRates?: Record<number, number | null>
+  favoriteTeamId?: number | null
 }
 
-export function MatchCard({ match, userBet, isJoined, serieId, winRates }: MatchCardProps) {
+export function MatchCard({ match, userBet, isJoined, serieId, winRates, favoriteTeamId }: MatchCardProps) {
   const [selectedScore, setSelectedScore] = useState<string | null>(userBet || null)
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
@@ -39,6 +40,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
   const isCanceled  = match.status === 'canceled'
   const isPostponed = match.status === 'postponed'
   const isTBD = !team1 || !team2 || match.opponents.length < 2 || isCanceled
+  const hasFavorite = favoriteTeamId && (team1?.id === favoriteTeamId || team2?.id === favoriteTeamId)
 
   // Formatte un score "2-1" → "2 - 1" pour l'affichage
   const fmt = (score: string) => score.replace('-', ' - ')
@@ -143,9 +145,10 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
   return (
     <Card className={cn(
       "group flex flex-col h-full overflow-hidden bg-card/50 transition-all hover:bg-card/80",
-      isLive     && "border-green-500/50 shadow-[0_0_16px_0px] shadow-green-500/20 hover:border-green-500/80",
-      isCanceled && "opacity-60 grayscale border-red-500/20",
-      !isLive && !isCanceled && "border-primary/20 hover:border-primary/50"
+      isLive      && "border-green-500/50 shadow-[0_0_16px_0px] shadow-green-500/20 hover:border-green-500/80",
+      isCanceled  && "opacity-60 grayscale border-red-500/20",
+      hasFavorite && !isLive && !isCanceled && "border-yellow-500/40 shadow-[0_0_20px_0px] shadow-yellow-500/10 hover:border-yellow-500/60 hover:shadow-yellow-500/20",
+      !isLive && !isCanceled && !hasFavorite && "border-primary/20 hover:border-primary/50"
     )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">

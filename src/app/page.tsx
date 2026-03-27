@@ -35,7 +35,7 @@ export default async function Home() {
         {/* Hero */}
         <div className="mb-12 text-center">
           <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-6xl uppercase">
-            Predict the <span className="text-primary italic">Game</span>
+            <span className="text-primary italic">Grind</span> the Ladder
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             Les meilleures compétitions <span className="text-primary font-bold">CS2</span> et <span className="text-primary font-bold">Valorant</span> sont ici.
@@ -95,7 +95,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="mt-24 border-t border-primary/20 bg-card/50 py-12">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          © 2026 PROJECT P - Esports Pick&apos;em Platform.
+          © 2026 grind.gg - Esports Pick&apos;em Platform.
         </div>
       </footer>
     </main>

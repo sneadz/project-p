@@ -32,28 +32,30 @@ export default async function Sidebar() {
       {/* Logo */}
       <div className="px-6 py-6 border-b border-border/50">
         <Link href="/">
-          <span className="text-xl font-black tracking-tighter text-primary cursor-pointer">
-            PROJECT P
-          </span>
+          <div className="flex items-center gap-3 h-10">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 shadow-[0_0_12px_0px] shadow-primary/20 shrink-0">
+              <span className="text-xs font-bold text-primary leading-none" style={{ fontFamily: 'var(--font-oxanium)' }}>
+                G.GG
+              </span>
+            </div>
+            <span className="text-4xl font-bold text-foreground tracking-tight leading-none" style={{ fontFamily: 'var(--font-oxanium)' }}>
+              GRIND<span className="text-primary">.GG</span>
+            </span>
+          </div>
         </Link>
       </div>
 
       {/* Profil */}
-      <Link href="/profile" className="group flex items-center gap-3 px-5 py-4 border-b border-border/50 hover:bg-muted/10 transition-colors">
-        <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-primary/60 transition-colors bg-background flex items-center justify-center shrink-0">
+      <Link href="/profile" className="group flex flex-col items-center gap-3 px-4 py-5 border-b border-border/50 hover:bg-muted/10 transition-colors">
+        <div className="w-4/5 aspect-square rounded-2xl overflow-hidden border-2 border-primary/30 group-hover:border-primary/60 transition-colors bg-background flex items-center justify-center shrink-0">
           {avatarSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={avatarSrc} alt="Avatar" className="h-full w-full object-cover" />
           ) : (
-            <User className="h-4 w-4 text-muted-foreground" />
+            <User className="h-12 w-12 text-muted-foreground" />
           )}
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold truncate">{displayName}</p>
-          {profile?.username && (
-            <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
-          )}
-        </div>
+        <p className="text-sm font-bold truncate">{displayName}</p>
       </Link>
 
       {/* Navigation */}

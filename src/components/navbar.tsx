@@ -35,7 +35,7 @@ export default async function Navbar() {
             <>
               <span className="text-sm font-medium hidden sm:block truncate max-w-[160px]">{displayName}</span>
               <Link href="/profile">
-                <div className="relative h-9 w-9 rounded-full overflow-hidden border-2 border-primary/30 hover:border-primary transition-colors bg-card flex items-center justify-center cursor-pointer">
+                <div className="relative h-9 w-9 rounded-xl overflow-hidden border-2 border-primary/30 hover:border-primary transition-colors bg-card flex items-center justify-center cursor-pointer">
                   {profile?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={profile.avatar_url.split('?')[0]} alt="Avatar" className="h-full w-full object-cover" />

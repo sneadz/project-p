@@ -78,3 +78,28 @@ export async function placeBet(matchId: number, serieId: number, score: string) 
   revalidatePath(`/series/${serieId}`)
   return { success: true }
 }
+
+export async function setFavoriteTeam(
+  serieId: number,
+  teamId: number,
+  teamName: string,
+  teamImageUrl?: string | null
+) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Vous devez être connecté.' }
+
+  const { error } = await supabase
+    .from('favorite_teams')
+    .upsert({
+      user_id: user.id,
+      serie_id: serieId,
+      team_id: teamId,
+      team_name: teamName,
+      team_image_url: teamImageUrl ?? null,
+    }, { onConflict: 'user_id,serie_id' })
+
+  if (error) return { error: error.message }
+  revalidatePath(`/series/${serieId}`)
+  return { success: true }
+}
