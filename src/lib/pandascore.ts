@@ -113,6 +113,30 @@ export async function getMatchesBySerie(serieId: number): Promise<PandaScoreMatc
 }
 
 
+export async function getMatchById(matchId: number): Promise<PandaScoreMatch | null> {
+  if (!PANDASCORE_API_KEY || PANDASCORE_API_KEY === 'your_pandascore_api_key') {
+    return null
+  }
+
+  try {
+    const response = await fetch(
+      `${BASE_URL}/matches/${matchId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${PANDASCORE_API_KEY}`,
+        },
+        cache: 'no-store',
+      }
+    )
+
+    if (!response.ok) return null
+    return response.json()
+  } catch (error) {
+    console.error('Error fetching match by id:', error)
+    return null
+  }
+}
+
 export async function getUpcomingMatches(): Promise<PandaScoreMatch[]> {
   if (!PANDASCORE_API_KEY || PANDASCORE_API_KEY === 'your_pandascore_api_key') {
     console.warn('PandaScore API key is missing. Returning empty array.')

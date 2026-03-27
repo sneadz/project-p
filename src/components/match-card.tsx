@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PandaScoreMatch } from '@/types/pandascore'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +23,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
   const [selectedScore, setSelectedScore] = useState<string | null>(userBet || null)
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
+  const router = useRouter()
   
   // Mettre à jour si le userBet change (par exemple après une inscription)
   useEffect(() => {
@@ -32,17 +34,23 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
   const team2 = match.opponents[1]?.opponent
   const game = match.videogame.name
   const bo = match.number_of_games
-  const isFinished = match.status === 'finished'
-  const isCanceled = match.status === 'canceled'
+  const isFinished  = match.status === 'finished'
+  const isLive      = match.status === 'running'
+  const isCanceled  = match.status === 'canceled'
   const isPostponed = match.status === 'postponed'
   const isTBD = !team1 || !team2 || match.opponents.length < 2 || isCanceled
 
-  // Score réel si le match est terminé
-  const realScore = isFinished && match.results && match.results.length >= 2 ? (() => {
+  // Formatte un score "2-1" → "2 - 1" pour l'affichage
+  const fmt = (score: string) => score.replace('-', ' - ')
+
+  // Score réel (terminé ou en cours)
+  const getScore = () => {
+    if (!match.results || match.results.length < 2) return null
     const s1 = match.results.find(r => r.team_id === team1?.id)?.score ?? 0
     const s2 = match.results.find(r => r.team_id === team2?.id)?.score ?? 0
     return `${s1}-${s2}`
-  })() : null
+  }
+  const realScore = (isFinished || isLive) ? getScore() : null
 
   // Calcul des shards si terminé et parié
   let shardsGained = 0
@@ -66,7 +74,14 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
     setLoading(true)
     try {
       const result = await placeBet(match.id, serieId, score)
-      if (result.error) {
+      if (result.error === 'MATCH_STARTED') {
+        toast({
+          title: "Match déjà commencé",
+          description: "Ce match est en cours, les paris ne sont plus acceptés.",
+          variant: "destructive"
+        })
+        router.refresh()
+      } else if (result.error) {
         toast({
           title: "Erreur",
           description: result.error,
@@ -127,23 +142,36 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
 
   return (
     <Card className={cn(
-      "group overflow-hidden border-primary/20 bg-card/50 transition-all hover:border-primary/50 hover:bg-card/80",
-      isCanceled && "opacity-60 grayscale border-red-500/20"
+      "group flex flex-col h-full overflow-hidden bg-card/50 transition-all hover:bg-card/80",
+      isLive     && "border-green-500/50 shadow-[0_0_16px_0px] shadow-green-500/20 hover:border-green-500/80",
+      isCanceled && "opacity-60 grayscale border-red-500/20",
+      !isLive && !isCanceled && "border-primary/20 hover:border-primary/50"
     )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <Badge variant="outline" className="text-[10px] uppercase tracking-tighter text-muted-foreground border-muted-foreground/20">
             {game} • BO{bo}
           </Badge>
-          <span className="text-[10px] font-mono text-muted-foreground">
-            {isCanceled ? 'Annulé' : matchDate}
-          </span>
+          <div className="flex items-center gap-2">
+            {isLive && (
+              <span className="flex items-center gap-1.5 text-[10px] font-black text-green-500 uppercase tracking-widest">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                </span>
+                Live
+              </span>
+            )}
+            <span className="text-[10px] font-mono text-muted-foreground">
+              {isCanceled ? 'Annulé' : matchDate}
+            </span>
+          </div>
         </div>
         <CardTitle className="mt-2 text-xs font-bold uppercase tracking-widest text-primary line-clamp-1">
           {match.name}
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-4">
+      <CardContent className="pt-4 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-4 relative">
           {/* Team 1 */}
           <div className="flex flex-1 flex-col items-center gap-3">
@@ -165,28 +193,27 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
 
           {/* Match Score / VS Divider */}
           <div className="flex flex-col items-center justify-center min-w-[60px]">
-            {isFinished && realScore ? (
+            {isLive && realScore ? (
+              <div className="flex flex-col items-center gap-1">
+                <div className="text-2xl font-black tracking-tighter text-green-500 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  {fmt(realScore)}
+                </div>
+              </div>
+            ) : isFinished && realScore ? (
               <div className="flex flex-col items-center">
                 <div className="text-2xl font-black tracking-tighter text-primary animate-in fade-in slide-in-from-bottom-2 duration-500">
-                  {realScore}
+                  {fmt(realScore)}
                 </div>
                 {selectedScore && (
                   <div className="absolute -bottom-1 text-[8px] font-bold text-muted-foreground uppercase tracking-widest animate-in fade-in zoom-in duration-300 whitespace-nowrap">
-                    Pari: {selectedScore}
+                    Pari: {fmt(selectedScore)}
                   </div>
                 )}
               </div>
             ) : isCanceled ? (
               <div className="text-lg font-black italic text-red-500/60 uppercase tracking-tighter">Annulé</div>
             ) : (
-              <>
-                <div className="text-xl font-black italic text-primary/60 group-hover:text-primary transition-colors uppercase">VS</div>
-                {selectedScore && (
-                  <div className="absolute -bottom-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest animate-in fade-in zoom-in duration-300 whitespace-nowrap">
-                    Pari: {selectedScore}
-                  </div>
-                )}
-              </>
+              <div className="text-xl font-black italic text-primary/60 group-hover:text-primary transition-colors uppercase">VS</div>
             )}
           </div>
 
@@ -210,7 +237,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
         </div>
         
         {/* Barre de win rate */}
-        {team1 && team2 && winRates && !isTBD && (() => {
+        {team1 && team2 && winRates && !isTBD && !isLive && (() => {
           const r1 = winRates[team1.id]
           const r2 = winRates[team2.id]
           if (r1 == null && r2 == null) return null
@@ -240,8 +267,26 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
           )
         })()}
 
-        {!isFinished && !isTBD && (
-          <div className="mt-8">
+        {isLive && (
+          <div className="mt-auto pt-8 flex flex-col gap-2">
+            <div className="py-3 text-center rounded-lg bg-green-500/5 border border-green-500/20 flex items-center justify-center gap-2">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-green-500">Match en cours</span>
+            </div>
+            {userBet && (
+              <div className="py-2 px-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                <span>Votre pari</span>
+                <span>{userBet}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!isFinished && !isLive && !isTBD && (
+          <div className="mt-auto pt-8">
             {isJoined && (
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">Choisir le score</p>
@@ -263,7 +308,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
                       loading && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    {score}
+                    {fmt(score)}
                   </button>
                 ))}
               </div>
@@ -277,15 +322,15 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
         )}
 
         {!isFinished && isTBD && (
-          <div className="mt-8 py-4 text-center rounded-lg bg-muted/5 border border-dashed border-muted/20">
+          <div className="mt-auto pt-8"><div className="py-4 text-center rounded-lg bg-muted/5 border border-dashed border-muted/20">
             <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               {isCanceled ? 'Match Annulé' : 'Équipes à déterminer'}
             </span>
-          </div>
+          </div></div>
         )}
         
         {isFinished && (
-          <div className="mt-8 flex flex-col gap-2">
+          <div className="mt-auto pt-8 flex flex-col gap-2">
              <div className="py-3 text-center rounded-lg bg-primary/5 border border-primary/10">
                 <span className="text-[10px] font-black uppercase tracking-widest text-primary">Match Terminé</span>
              </div>
@@ -294,7 +339,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates }: Match
                  "py-2 px-3 flex items-center justify-between rounded-lg border text-[10px] font-bold uppercase tracking-wider",
                  shardsGained > 0 ? "bg-green-500/10 border-green-500/20 text-green-500" : "bg-red-500/10 border-red-500/20 text-red-500"
                )}>
-                 <span>Votre pari: {userBet}</span>
+                 <span>Votre pari: {fmt(userBet)}</span>
                  <span className="flex items-center gap-1"><Gem className="h-3 w-3" />{shardsGained} SHARD{shardsGained > 1 ? 'S' : ''}</span>
                </div>
              )}

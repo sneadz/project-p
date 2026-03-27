@@ -1,3 +1,5 @@
+export const revalidate = 30
+
 import { getMatchesBySerie, getSerieById } from '@/lib/pandascore'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, Gem, Calendar, Gamepad2, Trophy } from 'lucide-react'

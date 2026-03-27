@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getMatchById } from '@/lib/pandascore'
 
 export async function joinCompetition(serieId: number) {
   const supabase = createClient()
@@ -36,6 +37,13 @@ export async function placeBet(matchId: number, serieId: number, score: string) 
   
   if (!user) {
     return { error: 'Vous devez être connecté pour parier.' }
+  }
+
+  // Vérifier le statut réel du match côté PandaScore
+  const match = await getMatchById(matchId)
+  if (match && (match.status === 'running' || match.status === 'finished')) {
+    revalidatePath(`/series/${serieId}`)
+    return { error: 'MATCH_STARTED' }
   }
 
   // Vérifier si l'utilisateur est inscrit à la compétition
