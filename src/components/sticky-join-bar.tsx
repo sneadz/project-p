@@ -13,7 +13,7 @@ interface StickyJoinBarProps {
 
 export function StickyJoinBar({ serieId, isJoined, isLoggedIn, leagueName, totalPoints }: StickyJoinBarProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-primary/20 bg-card/80 backdrop-blur py-3 px-4">
+    <div className="fixed bottom-16 md:bottom-3 left-0 md:left-[calc(256px+24px)] right-0 md:right-3 z-50 md:rounded-b-2xl border-t border-primary/20 bg-card/90 backdrop-blur py-3 px-4">
       <div className="container mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <span className="text-sm font-black uppercase tracking-tighter truncate hidden sm:block">{leagueName}</span>

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
-import Navbar from "@/components/navbar"
+import Sidebar from "@/components/sidebar"
+import { MobileNav } from "@/components/mobile-nav"
+import { ThemeProvider } from "@/components/theme-provider"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,11 +28,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
-        <Navbar />
-        {children}
-        <Toaster />
+    <html lang="fr" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+
+          {/* Desktop layout */}
+          <div className="hidden md:flex h-screen p-3 gap-3">
+
+            {/* Sidebar flottante */}
+            <Sidebar />
+
+            {/* Bloc principal flottant — scroll interne */}
+            <main className="flex-1 min-w-0 rounded-2xl bg-card dark:bg-[hsl(220_6%_11%)] overflow-y-auto scrollbar-none shadow-[0_8px_32px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+              {children}
+            </main>
+          </div>
+
+          {/* Mobile layout */}
+          <div className="md:hidden min-h-screen pb-16">
+            <main>{children}</main>
+            <MobileNav />
+          </div>
+
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -89,6 +89,29 @@ export default async function SeriePage({ params }: SeriePageProps) {
     })
   }
 
+  // Calcul des win rates depuis les matchs terminés de la série (sans appel API supplémentaire)
+  const teamStats: Record<number, { wins: number; losses: number }> = {}
+
+  matches.forEach(match => {
+    if (match.status !== 'finished' || !match.results || match.opponents.length < 2) return
+    const team1 = match.opponents[0]?.opponent
+    const team2 = match.opponents[1]?.opponent
+    if (!team1 || !team2) return
+    const r1 = match.results.find(r => r.team_id === team1.id)
+    const r2 = match.results.find(r => r.team_id === team2.id)
+    if (!r1 || !r2) return
+    if (!teamStats[team1.id]) teamStats[team1.id] = { wins: 0, losses: 0 }
+    if (!teamStats[team2.id]) teamStats[team2.id] = { wins: 0, losses: 0 }
+    if (r1.score > r2.score) { teamStats[team1.id].wins++; teamStats[team2.id].losses++ }
+    else { teamStats[team2.id].wins++; teamStats[team1.id].losses++ }
+  })
+
+  const winRates: Record<number, number | null> = {}
+  Object.entries(teamStats).forEach(([id, s]) => {
+    const total = s.wins + s.losses
+    winRates[Number(id)] = total > 0 ? Math.round((s.wins / total) * 100) : null
+  })
+
   if (!serie && matches.length === 0) {
     notFound()
   }
@@ -227,6 +250,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
             userBets={userBets}
             isJoined={isJoined}
             serieId={serieId}
+            winRates={winRates}
           />
         ) : (
           <NoMatches />

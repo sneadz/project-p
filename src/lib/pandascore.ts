@@ -112,6 +112,7 @@ export async function getMatchesBySerie(serieId: number): Promise<PandaScoreMatc
   }
 }
 
+
 export async function getUpcomingMatches(): Promise<PandaScoreMatch[]> {
   if (!PANDASCORE_API_KEY || PANDASCORE_API_KEY === 'your_pandascore_api_key') {
     console.warn('PandaScore API key is missing. Returning empty array.')

@@ -12,9 +12,10 @@ interface MatchGroupsProps {
   userBets: Record<number, string>
   isJoined: boolean
   serieId: number
+  winRates: Record<number, number | null>
 }
 
-export function MatchGroups({ sortedTournamentNames, matchesByTournament, userBets, isJoined, serieId }: MatchGroupsProps) {
+export function MatchGroups({ sortedTournamentNames, matchesByTournament, userBets, isJoined, serieId, winRates }: MatchGroupsProps) {
   const [showFinished, setShowFinished] = useState(false)
 
   const isGroupFinished = (phase: string) =>
@@ -44,6 +45,7 @@ export function MatchGroups({ sortedTournamentNames, matchesByTournament, userBe
                   userBet={userBets[match.id]}
                   isJoined={isJoined}
                   serieId={serieId}
+                  winRates={winRates}
                 />
               </div>
             ))}

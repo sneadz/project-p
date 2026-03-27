@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils"
 
 interface SerieCardProps {
   serie: PandaScoreSerie
+  isRegistered?: boolean
 }
 
-export function SerieCard({ serie }: SerieCardProps) {
+export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
   const tier = serie.tournaments[0]?.tier?.toUpperCase() || '?'
   const tierColor = tier === 'S' 
     ? 'bg-yellow-500 text-black border-yellow-400' 
@@ -34,8 +35,18 @@ export function SerieCard({ serie }: SerieCardProps) {
 
   return (
     <Link href={`/series/${serie.id}`}>
-      <Card className={`group h-full overflow-hidden border-primary/20 bg-card/50 transition-all hover:border-white/50 hover:bg-card/80 ${gameDefaultColor}`}>
+      <Card className={`group relative h-full overflow-hidden bg-card/50 transition-all hover:bg-card/80
+        ${isRegistered
+          ? 'border-primary/60 hover:border-primary shadow-[0_0_12px_0px] shadow-primary/20'
+          : `border-primary/20 hover:border-white/50 ${gameDefaultColor}`
+        }`}>
         <CardHeader className="relative pb-0">
+          {isRegistered && (
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
+              ✦ Inscrit
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-2">
             <Badge className={cn("font-bold", tierColor)} variant="outline">
               TIER {tier}
