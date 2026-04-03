@@ -169,27 +169,3 @@ export async function getTeamActiveSeries(teamId: number): Promise<PandaScoreSer
   }
 }
 
-export async function getUpcomingMatches(): Promise<PandaScoreMatch[]> {
-  if (!PANDASCORE_API_KEY || PANDASCORE_API_KEY === 'your_pandascore_api_key') {
-    console.warn('PandaScore API key is missing. Returning empty array.')
-    return []
-  }
-
-  // Fetching upcoming CS2 (videogame_id=3) and Valorant (videogame_id=26) matches
-  // Using filter[videogame]=cs-go,valorant
-  const response = await fetch(
-    `${BASE_URL}/matches/upcoming?filter[videogame]=cs-go,valorant&sort=begin_at&per_page=12`,
-    {
-      headers: {
-        Authorization: `Bearer ${PANDASCORE_API_KEY}`,
-      },
-      next: { revalidate: 3600 }, // Cache for 1 hour
-    }
-  )
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch matches from PandaScore')
-  }
-
-  return response.json()
-}

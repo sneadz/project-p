@@ -7,18 +7,22 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Check } from 'lucide-react'
+import { Loader2, Check, EyeOff } from 'lucide-react'
 import { AVATARS, getAvatarSrc } from '@/lib/avatars'
 
 interface ProfileFormProps {
   userId: string
   initialUsername: string | null
   initialAvatarUrl: string | null
+  initialHideCs2?: boolean
+  initialHideValorant?: boolean
 }
 
-export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: ProfileFormProps) {
+export function ProfileForm({ userId, initialUsername, initialAvatarUrl, initialHideCs2 = false, initialHideValorant = false }: ProfileFormProps) {
   const [username, setUsername] = useState(initialUsername || '')
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(initialAvatarUrl)
+  const [hideCs2, setHideCs2] = useState(initialHideCs2)
+  const [hideValorant, setHideValorant] = useState(initialHideValorant)
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const supabase = createClient()
@@ -27,9 +31,11 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
   const handleSave = async () => {
     setLoading(true)
 
-    const updates: Record<string, string | null> = {
+    const updates: Record<string, string | null | boolean> = {
       updated_at: new Date().toISOString(),
       avatar_url: selectedAvatar,
+      hide_cs2: hideCs2,
+      hide_valorant: hideValorant,
     }
     if (username.trim()) updates.username = username.trim()
 
@@ -108,6 +114,41 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
+      </div>
+
+      {/* Filtres jeux */}
+      <div className="space-y-3">
+        <Label className="flex items-center gap-2">
+          <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+          Masquer un jeu
+        </Label>
+        <p className="text-xs text-muted-foreground -mt-1">
+          Les compétitions masquées restent visibles si une de tes équipes favorites y joue.
+        </p>
+        <div className="flex flex-col gap-2">
+          {[
+            { label: 'CS2', value: hideCs2, set: setHideCs2, color: 'blue' },
+            { label: 'Valorant', value: hideValorant, set: setHideValorant, color: 'red' },
+          ].map(({ label, value, set, color }) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => set(!value)}
+              className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-sm font-bold ${
+                value
+                  ? 'bg-muted/30 border-muted/40 text-muted-foreground'
+                  : color === 'blue'
+                    ? 'bg-blue-500/5 border-blue-500/30 text-blue-400'
+                    : 'bg-red-500/5 border-red-500/30 text-red-400'
+              }`}
+            >
+              <span>{label}</span>
+              <span className={`text-[10px] font-black uppercase tracking-widest ${value ? 'text-muted-foreground' : 'text-green-500'}`}>
+                {value ? 'Masqué' : 'Affiché'}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <Button

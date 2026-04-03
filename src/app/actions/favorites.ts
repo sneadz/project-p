@@ -64,3 +64,38 @@ export async function searchTeamsAction(query: string) {
   if (!query.trim() || query.length < 2) return []
   return searchTeams(query)
 }
+
+export async function refreshSerieStats(serieId: number) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+
+  const { getMatchesBySerie } = await import('@/lib/pandascore')
+  const { calculateSerieStats } = await import('@/lib/scoring')
+
+  const [matches, betsData] = await Promise.all([
+    getMatchesBySerie(serieId).catch(() => []),
+    supabase.from('bets').select('match_id, score').eq('user_id', user.id).eq('serie_id', serieId),
+  ])
+
+  const userBets = (betsData.data ?? []).reduce((acc, b) => {
+    acc[b.match_id] = b.score
+    return acc
+  }, {} as Record<number, string>)
+
+  const { correct, exact } = calculateSerieStats(matches, userBets)
+
+  await supabase.from('registrations')
+    .update({ correct_predictions: correct, exact_predictions: exact })
+    .eq('user_id', user.id)
+    .eq('serie_id', serieId)
+
+  const { count: betterCount } = await supabase
+    .from('registrations')
+    .select('*', { count: 'exact', head: true })
+    .eq('serie_id', serieId)
+    .gt('correct_predictions', correct)
+
+  revalidatePath(`/series/${serieId}`)
+  return { success: true, correct, exact, rank: (betterCount ?? 0) + 1 }
+}

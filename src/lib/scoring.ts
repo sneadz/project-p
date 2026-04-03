@@ -82,7 +82,14 @@ export function calculateSeriePoints(
   matches: PandaScoreMatch[],
   userBets: Record<number, string>
 ): number {
-  let total = 0
+  return calculateSerieStats(matches, userBets).shards
+}
+
+export function calculateSerieStats(
+  matches: PandaScoreMatch[],
+  userBets: Record<number, string>
+): { shards: number; correct: number; exact: number } {
+  let shards = 0, correct = 0, exact = 0
   for (const match of matches) {
     const bet = userBets[match.id]
     if (!bet || match.status !== 'finished') continue
@@ -94,7 +101,10 @@ export function calculateSeriePoints(
     const realScore = getRealScore(match, team1.id, team2.id)
     if (!realScore) continue
 
-    total += calculateMatchShards(bet, realScore, team1.id, team2.id).shards
+    const result = calculateMatchShards(bet, realScore, team1.id, team2.id)
+    shards += result.shards
+    if (result.isCorrectWinner) correct++
+    if (result.isExact) exact++
   }
-  return total
+  return { shards, correct, exact }
 }

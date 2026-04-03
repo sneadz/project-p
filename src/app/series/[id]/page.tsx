@@ -12,8 +12,9 @@ import { MatchGroups } from '@/components/match-groups'
 import { StickyJoinBar } from '@/components/sticky-join-bar'
 import { TeamsModal, TeamSummary } from '@/components/teams-modal'
 import { PandaScoreMatch } from '@/types/pandascore'
-import { calculateSeriePoints, calculateWinRates } from '@/lib/scoring'
+import { calculateSerieStats, calculateWinRates } from '@/lib/scoring'
 import { NoMatches } from '@/components/no-matches'
+import { SerieLeaderboardModal } from '@/components/serie-leaderboard-modal'
 
 interface SeriePageProps {
   params: {
@@ -83,9 +84,54 @@ export default async function SeriePage({ params }: SeriePageProps) {
   // mais si les deux échouent, là on affiche un 404
   const matches = await getMatchesBySerie(serieId).catch(() => [])
 
-  // Calcul des points totaux pour l'UI
+  // Calcul des points totaux + stats pour l'UI
+  let userCorrect = 0
+  let userExact = 0
   if (isJoined && matches.length > 0) {
-    totalPoints = calculateSeriePoints(matches, userBets)
+    const stats = calculateSerieStats(matches, userBets)
+    totalPoints = stats.shards
+    userCorrect = stats.correct
+    userExact = stats.exact
+  }
+
+  // Leaderboard data
+  let leaderboardEntries: { user_id: string; correct_predictions: number; exact_predictions: number; username: string | null; avatar_url: string | null }[] = []
+  let currentUserRank: number | null = null
+
+  if (matches.length > 0) {
+    const supabaseForLeader = createClient()
+    const { data: regs } = await supabaseForLeader
+      .from('registrations')
+      .select('user_id, correct_predictions, exact_predictions')
+      .eq('serie_id', serieId)
+      .order('correct_predictions', { ascending: false })
+      .order('exact_predictions', { ascending: false })
+      .limit(10)
+
+    if (regs && regs.length > 0) {
+      const uids = regs.map((r) => r.user_id)
+      const { data: profiles } = await supabaseForLeader
+        .from('profiles')
+        .select('id, username, avatar_url')
+        .in('id', uids)
+      const pMap = new Map((profiles ?? []).map((p) => [p.id, p]))
+      leaderboardEntries = regs.map((r) => ({
+        ...r,
+        correct_predictions: r.correct_predictions ?? 0,
+        exact_predictions: r.exact_predictions ?? 0,
+        username: pMap.get(r.user_id)?.username ?? null,
+        avatar_url: pMap.get(r.user_id)?.avatar_url ?? null,
+      }))
+    }
+
+    if (user) {
+      const { count } = await supabaseForLeader
+        .from('registrations')
+        .select('*', { count: 'exact', head: true })
+        .eq('serie_id', serieId)
+        .gt('correct_predictions', userCorrect)
+      currentUserRank = (count ?? 0) + 1
+    }
   }
 
   const winRates = calculateWinRates(matches)
@@ -269,6 +315,13 @@ export default async function SeriePage({ params }: SeriePageProps) {
                     </span>
                   </div>
                 )}
+                {isJoined && currentUserRank && (
+                  <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 border border-primary/20">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                      #{currentUserRank}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Titre */}
@@ -279,8 +332,8 @@ export default async function SeriePage({ params }: SeriePageProps) {
                 <p className="text-base text-muted-foreground italic mt-1">{fullSerieName}</p>
               </div>
 
-              {/* Bouton équipes */}
-              <div>
+              {/* Boutons équipes + classement */}
+              <div className="flex items-center gap-3 flex-wrap">
                 <TeamsModal
                   teams={teams}
                   serieId={serieId}
@@ -288,6 +341,14 @@ export default async function SeriePage({ params }: SeriePageProps) {
                   currentFavoriteTeamId={favoriteTeamId}
                   serieStarted={serieStarted}
                   activeTeamIds={Array.from(activeTeamIds)}
+                />
+                <SerieLeaderboardModal
+                  serieId={serieId}
+                  entries={leaderboardEntries}
+                  currentUserId={user?.id}
+                  currentUserRank={currentUserRank}
+                  currentUserCorrect={userCorrect}
+                  currentUserExact={userExact}
                 />
               </div>
             </div>

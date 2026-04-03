@@ -15,7 +15,7 @@ export default async function ProfileEditPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, avatar_url')
+    .select('username, avatar_url, hide_cs2, hide_valorant')
     .eq('id', user.id)
     .single()
 
@@ -44,6 +44,8 @@ export default async function ProfileEditPage() {
           userId={user.id}
           initialUsername={profile?.username ?? null}
           initialAvatarUrl={profile?.avatar_url ?? null}
+          initialHideCs2={profile?.hide_cs2 ?? false}
+          initialHideValorant={profile?.hide_valorant ?? false}
         />
       </section>
     </main>

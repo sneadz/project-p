@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Pencil, User, Gem } from 'lucide-react'
+import { Pencil, User, Gem, Trophy, Target, Crosshair } from 'lucide-react'
 import { getAvatarSrc } from '@/lib/avatars'
 import { getMatchesBySerie } from '@/lib/pandascore'
 import { calculateMatchShards, getRealScore } from '@/lib/scoring'
@@ -36,6 +36,19 @@ export default async function ProfilePage() {
   let totalShards = 0
   let finishedBets = 0
 
+  const serieStatsList: {
+    serie_id: number
+    serie_name: string
+    league_name: string
+    videogame_slug: string
+    shards: number
+    correct_predictions: number
+    exact_predictions: number
+    total_bets: number
+    rank: number
+    total_participants: number
+  }[] = []
+
   if (allBets && allBets.length > 0) {
     const serieIds = [...new Set(allBets.map((b) => b.serie_id))]
 
@@ -43,6 +56,11 @@ export default async function ProfilePage() {
       serieIds.map(async (serieId) => {
         const matches = await getMatchesBySerie(serieId).catch(() => [])
         const serieBets = allBets.filter((b) => b.serie_id === serieId)
+
+        let serieShards = 0
+        let serieCorrect = 0
+        let serieExact = 0
+        let serieTotalBets = 0
 
         for (const bet of serieBets) {
           const match = matches.find((m) => m.id === bet.match_id)
@@ -57,6 +75,7 @@ export default async function ProfilePage() {
           if (!realScore) continue
 
           finishedBets++
+          serieTotalBets++
 
           const { shards, isExact, isCorrectWinner } = calculateMatchShards(
             bet.score,
@@ -65,12 +84,66 @@ export default async function ProfilePage() {
             team2.id
           )
           totalShards += shards
-          if (isCorrectWinner) correctWinner++
-          if (isExact) exactScore++
+          serieShards += shards
+          if (isCorrectWinner) { correctWinner++; serieCorrect++ }
+          if (isExact) { exactScore++; serieExact++ }
+        }
+
+        // Sync correct/exact dans registrations pour le leaderboard par compétition
+        await supabase.from('registrations')
+          .update({ correct_predictions: serieCorrect, exact_predictions: serieExact })
+          .eq('user_id', user.id)
+          .eq('serie_id', serieId)
+
+        // Archive si tous les matchs sont terminés ou annulés
+        const allDone = matches.length > 0 && matches.every(
+          (m) => m.status === 'finished' || m.status === 'canceled'
+        )
+        if (allDone && serieTotalBets > 0 && matches.length > 0) {
+          const firstMatch = matches[0]
+
+          // Calculer le rang parmi les participants
+          const { count: betterCount } = await supabase
+            .from('registrations')
+            .select('*', { count: 'exact', head: true })
+            .eq('serie_id', serieId)
+            .gt('correct_predictions', serieCorrect)
+
+          const { count: totalParticipants } = await supabase
+            .from('registrations')
+            .select('*', { count: 'exact', head: true })
+            .eq('serie_id', serieId)
+
+          serieStatsList.push({
+            serie_id: serieId,
+            serie_name: firstMatch.serie.full_name,
+            league_name: firstMatch.league.name,
+            videogame_slug: firstMatch.videogame.slug,
+            shards: serieShards,
+            correct_predictions: serieCorrect,
+            exact_predictions: serieExact,
+            total_bets: serieTotalBets,
+            rank: (betterCount ?? 0) + 1,
+            total_participants: totalParticipants ?? 1,
+          })
         }
       })
     )
   }
+
+  if (serieStatsList.length > 0) {
+    await supabase.from('serie_stats').upsert(
+      serieStatsList.map((s) => ({ user_id: user.id, ...s })),
+      { onConflict: 'user_id,serie_id' }
+    )
+  }
+
+  // Fetch all archived serie stats for display
+  const { data: archivedStats } = await supabase
+    .from('serie_stats')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('archived_at', { ascending: false })
 
   const winRate = finishedBets > 0 ? Math.round((correctWinner / finishedBets) * 100) : 0
 
@@ -152,6 +225,44 @@ export default async function ProfilePage() {
             ))}
           </div>
         </div>
+
+        {/* Historique des compétitions */}
+        {archivedStats && archivedStats.length > 0 && (
+          <>
+            <div className="border-t border-border" />
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                <Trophy className="h-4 w-4" />
+                Compétitions jouées
+              </h2>
+              <div className="space-y-2">
+                {archivedStats.map((s) => (
+                  <div key={s.serie_id} className="rounded-lg border border-border bg-card p-4 flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold truncate">{s.league_name}</p>
+                      <p className="text-xs text-muted-foreground italic truncate">{s.serie_name}</p>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0 flex-wrap justify-end">
+                      {s.rank && (
+                        <span className="text-base font-black text-yellow-500 uppercase tracking-widest">
+                          Top #{s.rank}
+                        </span>
+                      )}
+                      <div className="flex items-center gap-1 text-green-500" title="Paris réussis">
+                        <Target className="h-3.5 w-3.5" />
+                        <span className="text-sm font-black tabular-nums">{s.correct_predictions}/{s.total_bets}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-primary" title="Scores exacts">
+                        <Crosshair className="h-3.5 w-3.5" />
+                        <span className="text-sm font-black tabular-nums">{s.exact_predictions}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </section>
     </main>
   )

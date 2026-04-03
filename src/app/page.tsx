@@ -9,6 +9,8 @@ export default async function Home() {
   let registeredSerieIds: number[] = []
   let globalFavorites: GlobalFavoriteTeam[] = []
   let isLoggedIn = false
+  let hideCs2 = false
+  let hideValorant = false
 
   try {
     series = await getUpcomingSeries()
@@ -22,12 +24,15 @@ export default async function Home() {
     isLoggedIn = !!user
 
     if (user) {
-      const [regData, favData] = await Promise.all([
+      const [regData, favData, profileData] = await Promise.all([
         supabase.from('registrations').select('serie_id').eq('user_id', user.id),
         supabase.from('global_favorite_teams').select('team_id, team_name, team_image_url').eq('user_id', user.id),
+        supabase.from('profiles').select('hide_cs2, hide_valorant').eq('id', user.id).single(),
       ])
       registeredSerieIds = regData.data?.map((r) => r.serie_id) ?? []
       globalFavorites = favData.data ?? []
+      hideCs2 = profileData.data?.hide_cs2 ?? false
+      hideValorant = profileData.data?.hide_valorant ?? false
     }
   } catch {}
 
@@ -57,8 +62,17 @@ export default async function Home() {
     extraSeries = Array.from(new Map(extraSeries.map((s) => [s.id, s])).values())
   }
 
-  // All series to display = main + extras from favorites
-  const allSeries = [...series, ...extraSeries]
+  const CS2_SLUGS = ['cs-go', 'cs-go-2', 'cs-2']
+
+  // All series to display = main + extras from favorites, filtered by game prefs (favorites bypass)
+  const allSeries = [...series, ...extraSeries].filter((s) => {
+    const isCs2 = CS2_SLUGS.includes(s.videogame.slug)
+    const isValorant = s.videogame.slug === 'valorant'
+    const isFav = favoriteSerieIds.has(s.id)
+    if (hideCs2 && isCs2 && !isFav) return false
+    if (hideValorant && isValorant && !isFav) return false
+    return true
+  })
 
   const mySeries = allSeries.filter((s) => registeredSerieIds.includes(s.id))
   const favoriteSeries = allSeries.filter(
