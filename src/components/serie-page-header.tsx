@@ -57,20 +57,20 @@ export function SeriePageHeader({
       <div className="absolute inset-0 bg-primary/10 -skew-y-3 transform origin-top-left -z-10"></div>
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-start justify-between gap-8">
-          {/* Logo jeu */}
-          <div className="relative h-48 w-48 flex-shrink-0 rounded-2xl bg-card/50 border border-primary/20 backdrop-blur shadow-2xl flex items-center justify-center overflow-hidden self-start">
+          {/* Logo jeu — centré sur mobile */}
+          <div className="relative h-28 w-28 md:h-48 md:w-48 flex-shrink-0 rounded-2xl bg-card/50 border border-primary/20 backdrop-blur shadow-2xl flex items-center justify-center overflow-hidden self-center md:self-start mx-auto md:mx-0">
             {gameSquare ? (
               <Image
                 src={gameSquare}
                 alt={videogameName}
                 fill
                 className="object-cover"
-                sizes="144px"
+                sizes="(max-width: 768px) 112px, 192px"
                 priority
               />
             ) : (
               <div className="flex flex-col h-full w-full items-center justify-center gap-2">
-                <Trophy className="h-14 w-14 text-primary/20" />
+                <Trophy className="h-10 w-10 md:h-14 md:w-14 text-primary/20" />
                 <span className="text-[10px] font-bold text-muted-foreground uppercase">
                   {videogameName}
                 </span>
@@ -79,9 +79,9 @@ export function SeriePageHeader({
           </div>
 
           {/* Infos + actions */}
-          <div className="flex-1 flex flex-col gap-4">
+          <div className="flex-1 flex flex-col gap-4 items-center md:items-start text-center md:text-left">
             {/* Badges */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap justify-center md:justify-start items-center gap-2">
               {videogameName && (
                 <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 border border-primary/20">
                   <Gamepad2 className="h-3 w-3 text-primary" />
@@ -120,14 +120,14 @@ export function SeriePageHeader({
 
             {/* Titre */}
             <div>
-              <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
+              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
                 {leagueName}
               </h2>
-              <p className="text-base text-muted-foreground italic mt-1">{fullSerieName}</p>
+              <p className="text-sm md:text-base text-muted-foreground italic mt-1">{fullSerieName}</p>
             </div>
 
             {/* Boutons équipes + classement */}
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
               <TeamsModal
                 teams={teams}
                 serieId={serieId}
@@ -147,11 +147,11 @@ export function SeriePageHeader({
             </div>
           </div>
 
-          {/* Favori — à droite dans le flex */}
+          {/* Favori — à droite sur desktop, inline sur mobile */}
           {favoriteTeam && (
-            <div className="flex flex-col items-center gap-2 shrink-0 self-start">
-              <div className="relative h-20 w-20">
-                <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-[0_0_20px_2px] shadow-yellow-500/20 bg-zinc-200 dark:bg-zinc-800">
+            <div className="flex flex-col items-center gap-2 shrink-0 self-center md:self-start mx-auto md:mx-0">
+              <div className="relative h-16 w-16 md:h-20 md:w-20">
+                <div className="h-16 w-16 md:h-20 md:w-20 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-[0_0_20px_2px] shadow-yellow-500/20 bg-zinc-200 dark:bg-zinc-800">
                   {favoriteTeam.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
