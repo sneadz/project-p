@@ -1,4 +1,4 @@
-import { PandaScoreMatch, PandaScoreSerie } from '@/types/pandascore'
+import { PandaScoreMatch, PandaScoreSerie, PandaScoreTeam } from '@/types/pandascore'
 
 const PANDASCORE_API_KEY = process.env.PANDASCORE_API_KEY
 const BASE_URL = 'https://api.pandascore.co'
@@ -121,6 +121,51 @@ export async function getMatchById(matchId: number): Promise<PandaScoreMatch | n
   } catch (error) {
     console.error('Error fetching match by id:', error)
     return null
+  }
+}
+
+export async function searchTeams(query: string): Promise<PandaScoreTeam[]> {
+  if (!PANDASCORE_API_KEY || PANDASCORE_API_KEY === 'your_pandascore_api_key') return []
+  if (!query.trim()) return []
+
+  try {
+    const [csRes, valRes] = await Promise.all([
+      fetch(`${BASE_URL}/csgo/teams?search[name]=${encodeURIComponent(query)}&per_page=8&sort=name`, {
+        headers: { Authorization: `Bearer ${PANDASCORE_API_KEY}` },
+        next: { revalidate: 60 },
+      }),
+      fetch(`${BASE_URL}/valorant/teams?search[name]=${encodeURIComponent(query)}&per_page=8&sort=name`, {
+        headers: { Authorization: `Bearer ${PANDASCORE_API_KEY}` },
+        next: { revalidate: 60 },
+      }),
+    ])
+    const csTeams: PandaScoreTeam[] = csRes.ok ? (await csRes.json()).map((t: PandaScoreTeam) => ({ ...t, game: 'CS2' as const })) : []
+    const valTeams: PandaScoreTeam[] = valRes.ok ? (await valRes.json()).map((t: PandaScoreTeam) => ({ ...t, game: 'Valorant' as const })) : []
+    // Merge by id, limit to 10
+    const merged = Array.from(new Map([...csTeams, ...valTeams].map((t) => [t.id, t])).values())
+    return merged.slice(0, 10)
+  } catch {
+    return []
+  }
+}
+
+export async function getTeamActiveSeries(teamId: number): Promise<PandaScoreSerie[]> {
+  if (!PANDASCORE_API_KEY || PANDASCORE_API_KEY === 'your_pandascore_api_key') return []
+
+  try {
+    const res = await fetch(`${BASE_URL}/teams/${teamId}/series?sort=begin_at&per_page=20`, {
+      headers: { Authorization: `Bearer ${PANDASCORE_API_KEY}` },
+      next: { revalidate: 1800 },
+    })
+    if (!res.ok) return []
+    const all: PandaScoreSerie[] = await res.json()
+    return all.filter(
+      (s) =>
+        ['cs-go', 'cs-go-2', 'cs-2', 'valorant'].includes(s.videogame.slug) &&
+        s.end_at === null || (s.end_at && new Date(s.end_at) >= new Date())
+    )
+  } catch {
+    return []
   }
 }
 

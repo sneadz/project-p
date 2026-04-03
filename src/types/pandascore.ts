@@ -38,6 +38,14 @@ export interface PandaScoreMatch {
   scheduled_at: string
 }
 
+export interface PandaScoreTeam {
+  id: number
+  name: string
+  image_url: string | null
+  slug: string
+  game?: 'CS2' | 'Valorant'
+}
+
 export interface PandaScoreSerie {
   id: number
   name: string

@@ -10,9 +10,10 @@ import { getGameBanner } from '@/lib/games'
 interface SerieCardProps {
   serie: PandaScoreSerie
   isRegistered?: boolean
+  hasFavoriteTeam?: boolean
 }
 
-export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
+export function SerieCard({ serie, isRegistered = false, hasFavoriteTeam = false }: SerieCardProps) {
   const tier = serie.tournaments[0]?.tier?.toUpperCase() || '?'
   const tierColor =
     tier === 'S'
@@ -39,13 +40,20 @@ export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
         ${
           isRegistered
             ? 'border-primary/60 hover:border-primary shadow-[0_0_12px_0px] shadow-primary/20'
-            : 'border-zinc-500/70 hover:border-zinc-400'
+            : hasFavoriteTeam
+              ? 'border-yellow-500/50 hover:border-yellow-500/80 shadow-[0_0_20px_0px] shadow-yellow-500/15 hover:shadow-yellow-500/25'
+              : 'border-zinc-500/70 hover:border-zinc-400'
         }`}
       >
         <CardHeader className="relative pb-0">
           {isRegistered && (
             <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
               ✦ Inscrit
+            </div>
+          )}
+          {hasFavoriteTeam && !isRegistered && (
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-yellow-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black shadow">
+              ⭐ Favori
             </div>
           )}
 

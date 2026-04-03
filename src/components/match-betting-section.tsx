@@ -14,6 +14,7 @@ interface MatchBettingSectionProps {
   selectedScore: string | null
   userBet?: string
   shardsGained: number
+  realScore?: string | null
   onScoreSelect: (score: string) => void
 }
 
@@ -30,62 +31,76 @@ export function MatchBettingSection({
   selectedScore,
   userBet,
   shardsGained,
+  realScore,
   onScoreSelect,
 }: MatchBettingSectionProps) {
   if (isLive) {
     return (
-      <div className="mt-auto pt-8 flex flex-col gap-2">
-        <div className="py-3 text-center rounded-lg bg-green-500/5 border border-green-500/20 flex items-center justify-center gap-2">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
-          </span>
-          <span className="text-[10px] font-black uppercase tracking-widest text-green-500">
-            Match en cours
-          </span>
-        </div>
-        {userBet && (
-          <div className="py-2 px-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 text-[10px] font-bold uppercase tracking-wider text-primary">
-            <span>Votre pari</span>
-            <span>{userBet}</span>
+      <div className="flex-1 pt-4 flex flex-col gap-2">
+        <div className={`flex-1 flex flex-col rounded-lg bg-green-500/5 border border-green-500/20 p-3 ${userBet ? 'justify-between' : 'items-center justify-center gap-3'}`}>
+          <div className="flex flex-col items-center justify-center gap-2 flex-1">
+            {realScore && (
+              <div className="text-3xl font-black tracking-tighter text-green-500 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                {fmt(realScore)}
+              </div>
+            )}
+            <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-green-500">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+              </span>
+              Match en cours
+            </span>
           </div>
-        )}
+          {userBet && (
+            <div className="w-full py-2 px-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 text-[10px] font-bold uppercase tracking-wider text-primary">
+              <span>Votre pari</span>
+              <span>{userBet}</span>
+            </div>
+          )}
+        </div>
       </div>
     )
   }
 
   if (isFinished) {
     return (
-      <div className="mt-auto pt-8 flex flex-col gap-2">
-        <div className="py-3 text-center rounded-lg bg-primary/5 border border-primary/10">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-            Match Terminé
-          </span>
-        </div>
-        {userBet && (
-          <div
-            className={cn(
-              'py-2 px-3 flex items-center justify-between rounded-lg border text-[10px] font-bold uppercase tracking-wider',
+      <div className="flex-1 pt-4 flex flex-col gap-2">
+        <div className={`flex-1 flex flex-col rounded-lg bg-muted/20 border border-muted/30 p-3 ${userBet ? 'justify-between' : 'items-center justify-center gap-3'}`}>
+          <div className="flex flex-col items-center justify-center gap-2 flex-1">
+            {realScore ? (
+              <div className="text-3xl font-black tracking-tighter text-foreground">
+                {fmt(realScore)}
+              </div>
+            ) : (
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Match Terminé
+              </span>
+            )}
+          </div>
+          {userBet && (
+            <div className={cn(
+              'w-full py-2 px-3 flex items-center justify-between rounded-lg border text-[10px] font-bold uppercase tracking-wider',
               shardsGained > 0
                 ? 'bg-green-500/10 border-green-500/20 text-green-500'
                 : 'bg-red-500/10 border-red-500/20 text-red-500'
-            )}
-          >
-            <span>Votre pari: {fmt(userBet)}</span>
-            <span className="flex items-center gap-1">
-              <Gem className="h-3 w-3" />
-              {shardsGained} SHARD{shardsGained > 1 ? 'S' : ''}
-            </span>
-          </div>
-        )}
+            )}>
+              <span>Pari: {fmt(userBet)}</span>
+              <span className="flex items-center gap-1">
+                <Gem className="h-3 w-3" />
+                {shardsGained} SHARD{shardsGained > 1 ? 'S' : ''}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     )
   }
 
   if (isTBD) {
     return (
-      <div className="mt-auto pt-8">
-        <div className="py-4 text-center rounded-lg bg-muted/5 border border-dashed border-muted/20">
+      <div className="flex-1 pt-4 flex flex-col">
+        <div className="flex-1 flex items-center justify-center rounded-lg bg-muted/15 border border-dashed border-muted/40">
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             {isCanceled ? 'Match Annulé' : 'Équipes à déterminer'}
           </span>

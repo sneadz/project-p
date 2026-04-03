@@ -89,11 +89,12 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
 
   return (
     <Card className={cn(
-      'group flex flex-col h-full overflow-hidden bg-card/50 transition-all hover:bg-card/80',
+      'group flex flex-col h-[340px] overflow-hidden bg-card/50 transition-all hover:bg-card/80',
       isLive && 'border-green-500/50 shadow-[0_0_16px_0px] shadow-green-500/20 hover:border-green-500/80',
+      isFinished && 'border-muted/30 hover:border-muted/50',
       isCanceled && 'opacity-60 grayscale border-red-500/20',
-      hasFavorite && !isLive && !isCanceled && 'border-yellow-500/40 shadow-[0_0_20px_0px] shadow-yellow-500/10 hover:border-yellow-500/60 hover:shadow-yellow-500/20',
-      !isLive && !isCanceled && !hasFavorite && 'border-primary/20 hover:border-primary/50'
+      hasFavorite && !isLive && !isCanceled && !isFinished && 'border-yellow-500/40 shadow-[0_0_20px_0px] shadow-yellow-500/10 hover:border-yellow-500/60 hover:shadow-yellow-500/20',
+      !isLive && !isCanceled && !isFinished && !hasFavorite && 'border-primary/20 hover:border-primary/50'
     )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -137,22 +138,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
           </div>
 
           <div className="flex flex-col items-center justify-center min-w-[60px]">
-            {isLive && realScore ? (
-              <div className="text-2xl font-black tracking-tighter text-green-500 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                {fmt(realScore)}
-              </div>
-            ) : isFinished && realScore ? (
-              <div className="flex flex-col items-center">
-                <div className="text-2xl font-black tracking-tighter text-primary animate-in fade-in slide-in-from-bottom-2 duration-500">
-                  {fmt(realScore)}
-                </div>
-                {selectedScore && (
-                  <div className="absolute -bottom-1 text-[8px] font-bold text-muted-foreground uppercase tracking-widest animate-in fade-in zoom-in duration-300 whitespace-nowrap">
-                    Pari: {fmt(selectedScore)}
-                  </div>
-                )}
-              </div>
-            ) : isCanceled ? (
+            {isCanceled ? (
               <div className="text-lg font-black italic text-red-500/60 uppercase tracking-tighter">Annulé</div>
             ) : (
               <div className="text-xl font-black italic text-primary/60 group-hover:text-primary transition-colors uppercase">VS</div>
@@ -174,7 +160,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
         </div>
 
         {/* Win rate bar */}
-        {team1 && team2 && winRates && !isTBD && !isLive && (
+        {team1 && team2 && winRates && !isTBD && !isLive && !isFinished && (
           <MatchWinRateBar team1Id={team1.id} team2Id={team2.id} winRates={winRates} />
         )}
 
@@ -190,6 +176,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
           selectedScore={selectedScore}
           userBet={userBet}
           shardsGained={shardsGained}
+          realScore={realScore}
           onScoreSelect={handleScoreSelect}
         />
       </CardContent>
