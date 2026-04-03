@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { Trophy, BarChart2, Medal } from 'lucide-react'
 
 const navItems = [
-  { href: '/',            label: 'Compétitions', icon: Trophy    },
-  { href: '/profile',     label: 'Statistiques', icon: BarChart2 },
-  { href: '/leaderboard', label: 'Classement',   icon: Medal     },
+  { href: '/', label: 'Compétitions', icon: Trophy },
+  { href: '/profile', label: 'Statistiques', icon: BarChart2 },
+  { href: '/leaderboard', label: 'Classement', icon: Medal },
 ]
 
 export function SidebarNav() {
@@ -22,9 +22,10 @@ export function SidebarNav() {
             key={href}
             href={href}
             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold uppercase tracking-wide transition-all
-              ${isActive
-                ? 'bg-primary/10 text-primary border border-primary/20'
-                : 'text-muted-foreground hover:bg-muted/10 hover:text-foreground border border-transparent'
+              ${
+                isActive
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : 'text-muted-foreground hover:bg-muted/10 hover:text-foreground border border-transparent'
               }`}
           >
             <Icon className="h-4 w-4 shrink-0" />

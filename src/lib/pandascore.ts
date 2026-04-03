@@ -13,43 +13,40 @@ export async function getUpcomingSeries(): Promise<PandaScoreSerie[]> {
   try {
     // Fetch both running and upcoming series
     const [runningRes, upcomingRes] = await Promise.all([
-      fetch(`${BASE_URL}/series/running?sort=begin_at&per_page=50`, {
+      fetch(`${BASE_URL}/series/running?sort=begin_at&per_page=100`, {
         headers: { Authorization: `Bearer ${PANDASCORE_API_KEY}` },
-        next: { revalidate: 3600 },
+        next: { revalidate: 1800 },
       }),
-      fetch(`${BASE_URL}/series/upcoming?sort=begin_at&per_page=50`, {
+      fetch(`${BASE_URL}/series/upcoming?sort=begin_at&per_page=100`, {
         headers: { Authorization: `Bearer ${PANDASCORE_API_KEY}` },
-        next: { revalidate: 3600 },
-      })
+        next: { revalidate: 1800 },
+      }),
     ])
 
     const runningSeries: PandaScoreSerie[] = runningRes.ok ? await runningRes.json() : []
     const upcomingSeries: PandaScoreSerie[] = upcomingRes.ok ? await upcomingRes.json() : []
-    
+
     // Combine and remove duplicates (by ID)
     const allSeries = [...runningSeries, ...upcomingSeries]
-    const uniqueSeries = Array.from(new Map(allSeries.map(s => [s.id, s])).values())
+    const uniqueSeries = Array.from(new Map(allSeries.map((s) => [s.id, s])).values())
 
     console.log(`Fetched ${uniqueSeries.length} total unique series before filtering.`)
-    
+
     // Filter by videogame and tier (S or A)
-    const filtered = uniqueSeries.filter(serie => {
+    const filtered = uniqueSeries.filter((serie) => {
       // Check for CS2 (cs-go/cs-go-2/cs-2) or Valorant
       const isTargetGame = ['cs-go', 'cs-go-2', 'cs-2', 'valorant'].includes(serie.videogame.slug)
-      
-      // Check if any tournament in the series is S or A tier
-      const hasTargetTier = serie.tournaments.some(t => ['s', 'a'].includes(t.tier?.toLowerCase()))
-      
-      // Also include series that might not have tier set but are known major tournaments
-      const isMajorByTitle = (serie.league.name.toLowerCase().includes('masters') || 
-                            serie.league.name.toLowerCase().includes('major') ||
-                            serie.league.name.toLowerCase().includes('champions') ||
-                            serie.league.name.toLowerCase().includes('vct')) &&
-                            !serie.tournaments.some(t => ['d', 'e'].includes(t.tier?.toLowerCase()))
 
-      return isTargetGame && (hasTargetTier || isMajorByTitle)
+      const hasGoodTier = serie.tournaments.some((t) =>
+        ['s', 'a', 'b'].includes(t.tier?.toLowerCase())
+      )
+      const hasNoLowTier = !serie.tournaments.some((t) =>
+        ['c', 'd', 'e'].includes(t.tier?.toLowerCase())
+      )
+
+      return isTargetGame && hasGoodTier && hasNoLowTier
     })
-    
+
     console.log(`Found ${filtered.length} matching series (S/A tier).`)
     return filtered
   } catch (error) {
@@ -64,15 +61,12 @@ export async function getSerieById(serieId: number): Promise<PandaScoreSerie | n
   }
 
   try {
-    const response = await fetch(
-      `${BASE_URL}/series/${serieId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${PANDASCORE_API_KEY}`,
-        },
-        next: { revalidate: 3600 },
-      }
-    )
+    const response = await fetch(`${BASE_URL}/series/${serieId}`, {
+      headers: {
+        Authorization: `Bearer ${PANDASCORE_API_KEY}`,
+      },
+      next: { revalidate: 3600 },
+    })
 
     if (!response.ok) {
       return null
@@ -91,15 +85,12 @@ export async function getMatchesBySerie(serieId: number): Promise<PandaScoreMatc
   }
 
   try {
-    const response = await fetch(
-      `${BASE_URL}/series/${serieId}/matches?sort=begin_at`,
-      {
-        headers: {
-          Authorization: `Bearer ${PANDASCORE_API_KEY}`,
-        },
-        next: { revalidate: 600 }, // Cache for 10 minutes
-      }
-    )
+    const response = await fetch(`${BASE_URL}/series/${serieId}/matches?sort=begin_at`, {
+      headers: {
+        Authorization: `Bearer ${PANDASCORE_API_KEY}`,
+      },
+      next: { revalidate: 600 }, // Cache for 10 minutes
+    })
 
     if (!response.ok) {
       throw new Error('Failed to fetch matches for serie')
@@ -112,22 +103,18 @@ export async function getMatchesBySerie(serieId: number): Promise<PandaScoreMatc
   }
 }
 
-
 export async function getMatchById(matchId: number): Promise<PandaScoreMatch | null> {
   if (!PANDASCORE_API_KEY || PANDASCORE_API_KEY === 'your_pandascore_api_key') {
     return null
   }
 
   try {
-    const response = await fetch(
-      `${BASE_URL}/matches/${matchId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${PANDASCORE_API_KEY}`,
-        },
-        cache: 'no-store',
-      }
-    )
+    const response = await fetch(`${BASE_URL}/matches/${matchId}`, {
+      headers: {
+        Authorization: `Bearer ${PANDASCORE_API_KEY}`,
+      },
+      cache: 'no-store',
+    })
 
     if (!response.ok) return null
     return response.json()

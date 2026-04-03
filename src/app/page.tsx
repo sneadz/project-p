@@ -15,7 +15,9 @@ export default async function Home() {
 
   try {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (user) {
       const { data: registrations } = await supabase
         .from('registrations')
@@ -31,19 +33,18 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="container mx-auto px-4 py-12">
-
         {/* Hero */}
         <div className="mb-12 text-center">
           <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-6xl uppercase">
             <span className="text-primary italic">Grind</span> the Ladder
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Les meilleures compétitions <span className="text-primary font-bold">CS2</span> et <span className="text-primary font-bold">Valorant</span> sont ici.
+            Les meilleures compétitions <span className="text-primary font-bold">CS2</span> et{' '}
+            <span className="text-primary font-bold">Valorant</span> sont ici.
           </p>
         </div>
 
         <div className="space-y-14">
-
           {/* Mes compétitions */}
           {mySeries.length > 0 && (
             <div className="space-y-6">
@@ -76,9 +77,7 @@ export default async function Home() {
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {otherSeries.length > 0 ? (
-                otherSeries.map((serie) => (
-                  <SerieCard key={serie.id} serie={serie} />
-                ))
+                otherSeries.map((serie) => <SerieCard key={serie.id} serie={serie} />)
               ) : (
                 <div className="col-span-full py-12 text-center text-muted-foreground bg-card/20 rounded-lg border border-dashed border-primary/20">
                   {mySeries.length > 0
@@ -88,7 +87,6 @@ export default async function Home() {
               )}
             </div>
           </div>
-
         </div>
       </section>
 

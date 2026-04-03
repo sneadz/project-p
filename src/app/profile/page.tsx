@@ -5,10 +5,13 @@ import Link from 'next/link'
 import { Pencil, User, Gem } from 'lucide-react'
 import { getAvatarSrc } from '@/lib/avatars'
 import { getMatchesBySerie } from '@/lib/pandascore'
+import { calculateMatchShards, getRealScore } from '@/lib/scoring'
 
 export default async function ProfilePage() {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
 
@@ -34,50 +37,50 @@ export default async function ProfilePage() {
   let finishedBets = 0
 
   if (allBets && allBets.length > 0) {
-    const serieIds = [...new Set(allBets.map(b => b.serie_id))]
+    const serieIds = [...new Set(allBets.map((b) => b.serie_id))]
 
-    await Promise.all(serieIds.map(async (serieId) => {
-      const matches = await getMatchesBySerie(serieId).catch(() => [])
-      const serieBets = allBets.filter(b => b.serie_id === serieId)
+    await Promise.all(
+      serieIds.map(async (serieId) => {
+        const matches = await getMatchesBySerie(serieId).catch(() => [])
+        const serieBets = allBets.filter((b) => b.serie_id === serieId)
 
-      for (const bet of serieBets) {
-        const match = matches.find(m => m.id === bet.match_id)
-        if (!match || match.status !== 'finished' || !match.results || match.results.length < 2) continue
+        for (const bet of serieBets) {
+          const match = matches.find((m) => m.id === bet.match_id)
+          if (!match || match.status !== 'finished' || !match.results || match.results.length < 2)
+            continue
 
-        const team1 = match.opponents[0]?.opponent
-        const team2 = match.opponents[1]?.opponent
-        if (!team1 || !team2) continue
+          const team1 = match.opponents[0]?.opponent
+          const team2 = match.opponents[1]?.opponent
+          if (!team1 || !team2) continue
 
-        const s1 = match.results.find((r: { team_id: number; score: number }) => r.team_id === team1.id)?.score ?? 0
-        const s2 = match.results.find((r: { team_id: number; score: number }) => r.team_id === team2.id)?.score ?? 0
-        const realScore = `${s1}-${s2}`
+          const realScore = getRealScore(match, team1.id, team2.id)
+          if (!realScore) continue
 
-        finishedBets++
+          finishedBets++
 
-        if (bet.score === realScore) {
-          exactScore++
-          correctWinner++
-          totalShards += 2
-        } else {
-          const [bet1, bet2] = bet.score.split('-').map(Number)
-          const betWinner = bet1 > bet2 ? team1.id : team2.id
-          const realWinner = s1 > s2 ? team1.id : team2.id
-          if (betWinner === realWinner) {
-            correctWinner++
-            totalShards += 1
-          }
+          const { shards, isExact, isCorrectWinner } = calculateMatchShards(
+            bet.score,
+            realScore,
+            team1.id,
+            team2.id
+          )
+          totalShards += shards
+          if (isCorrectWinner) correctWinner++
+          if (isExact) exactScore++
         }
-      }
-    }))
+      })
+    )
   }
 
   const winRate = finishedBets > 0 ? Math.round((correctWinner / finishedBets) * 100) : 0
 
-  // Update total_shards in profiles for leaderboard
+  // Sync stats to profiles for leaderboard
   await supabase.from('profiles').upsert({
     id: user.id,
     total_shards: totalShards,
-    updated_at: new Date().toISOString()
+    correct_predictions: correctWinner,
+    exact_predictions: exactScore,
+    updated_at: new Date().toISOString(),
   })
 
   // Leaderboard rank
@@ -101,7 +104,6 @@ export default async function ProfilePage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="container mx-auto max-w-2xl px-4 py-16 space-y-10">
-
         {/* Header profil */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
@@ -115,9 +117,7 @@ export default async function ProfilePage() {
             </div>
             <div>
               <h1 className="text-2xl font-black uppercase tracking-tighter">{displayName}</h1>
-              {profile?.username && (
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-              )}
+              {profile?.username && <p className="text-sm text-muted-foreground">{user.email}</p>}
             </div>
           </div>
           <Link href="/profile/edit">
@@ -132,11 +132,18 @@ export default async function ProfilePage() {
 
         {/* Stats */}
         <div className="space-y-4">
-          <h2 className="text-lg font-bold uppercase tracking-wider text-muted-foreground">Statistiques</h2>
+          <h2 className="text-lg font-bold uppercase tracking-wider text-muted-foreground">
+            Statistiques
+          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-lg border border-border bg-card p-4 space-y-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">{stat.label}</p>
+              <div
+                key={stat.label}
+                className="rounded-lg border border-border bg-card p-4 space-y-1"
+              >
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                  {stat.label}
+                </p>
                 <p className="text-2xl font-black text-primary flex items-center gap-1.5">
                   {stat.icon && <Gem className="h-5 w-5" />}
                   {stat.value}
@@ -145,7 +152,6 @@ export default async function ProfilePage() {
             ))}
           </div>
         </div>
-
       </section>
     </main>
   )

@@ -1,7 +1,6 @@
 export const revalidate = 30
 
 import { getMatchesBySerie, getSerieById } from '@/lib/pandascore'
-import { Button } from '@/components/ui/button'
 import { ChevronLeft, Gem, Calendar, Gamepad2, Trophy } from 'lucide-react'
 import { getGameSquare } from '@/lib/games'
 import Link from 'next/link'
@@ -13,6 +12,8 @@ import { MatchGroups } from '@/components/match-groups'
 import { StickyJoinBar } from '@/components/sticky-join-bar'
 import { TeamsModal, TeamSummary } from '@/components/teams-modal'
 import { PandaScoreMatch } from '@/types/pandascore'
+import { calculateSeriePoints, calculateWinRates } from '@/lib/scoring'
+import { NoMatches } from '@/components/no-matches'
 
 interface SeriePageProps {
   params: {
@@ -22,13 +23,15 @@ interface SeriePageProps {
 
 export default async function SeriePage({ params }: SeriePageProps) {
   const serieId = parseInt(params.id)
-  
+
   if (isNaN(serieId)) {
     notFound()
   }
 
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   // Vérifier si l'utilisateur est inscrit à cette compétition
   let isJoined = false
@@ -43,7 +46,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
       .eq('user_id', user.id)
       .eq('serie_id', serieId)
       .single()
-    
+
     isJoined = !!registration
 
     const { data: favorite } = await supabase
@@ -60,109 +63,72 @@ export default async function SeriePage({ params }: SeriePageProps) {
         .select('match_id, score')
         .eq('user_id', user.id)
         .eq('serie_id', serieId)
-      
+
       if (bets) {
-        userBets = bets.reduce((acc, bet) => {
-          acc[bet.match_id] = bet.score
-          return acc
-        }, {} as Record<number, string>)
+        userBets = bets.reduce(
+          (acc, bet) => {
+            acc[bet.match_id] = bet.score
+            return acc
+          },
+          {} as Record<number, string>
+        )
       }
     }
   }
 
   // On récupère les infos de la série via l'API directe ou le cache
   const serie = await getSerieById(serieId)
-  
+
   // Si on n'a pas pu récupérer la série, on tente quand même les matchs
   // mais si les deux échouent, là on affiche un 404
   const matches = await getMatchesBySerie(serieId).catch(() => [])
 
   // Calcul des points totaux pour l'UI
   if (isJoined && matches.length > 0) {
-    matches.forEach(match => {
-      const bet = userBets[match.id]
-      if (bet && match.status === 'finished' && match.results && match.results.length >= 2) {
-        const team1 = match.opponents[0]?.opponent
-        const team2 = match.opponents[1]?.opponent
-        const s1 = match.results.find(r => r.team_id === team1?.id)?.score ?? 0
-        const s2 = match.results.find(r => r.team_id === team2?.id)?.score ?? 0
-        const realScore = `${s1}-${s2}`
-
-        if (bet === realScore) {
-          totalPoints += 2
-        } else {
-          const [bet1, bet2] = bet.split('-').map(Number)
-          const betWinner = bet1 > bet2 ? team1?.id : team2?.id
-          const realWinner = s1 > s2 ? team1?.id : team2?.id
-          if (betWinner === realWinner) {
-            totalPoints += 1
-          }
-        }
-      }
-    })
+    totalPoints = calculateSeriePoints(matches, userBets)
   }
 
-  // Calcul des win rates depuis les matchs terminés de la série (sans appel API supplémentaire)
-  const teamStats: Record<number, { wins: number; losses: number }> = {}
-
-  matches.forEach(match => {
-    if (match.status !== 'finished' || !match.results || match.opponents.length < 2) return
-    const team1 = match.opponents[0]?.opponent
-    const team2 = match.opponents[1]?.opponent
-    if (!team1 || !team2) return
-    const r1 = match.results.find(r => r.team_id === team1.id)
-    const r2 = match.results.find(r => r.team_id === team2.id)
-    if (!r1 || !r2) return
-    if (!teamStats[team1.id]) teamStats[team1.id] = { wins: 0, losses: 0 }
-    if (!teamStats[team2.id]) teamStats[team2.id] = { wins: 0, losses: 0 }
-    if (r1.score > r2.score) { teamStats[team1.id].wins++; teamStats[team2.id].losses++ }
-    else { teamStats[team2.id].wins++; teamStats[team1.id].losses++ }
-  })
-
-  const winRates: Record<number, number | null> = {}
-  Object.entries(teamStats).forEach(([id, s]) => {
-    const total = s.wins + s.losses
-    winRates[Number(id)] = total > 0 ? Math.round((s.wins / total) * 100) : null
-  })
+  const winRates = calculateWinRates(matches)
 
   if (!serie && matches.length === 0) {
     notFound()
   }
 
   // Fallback si la série est null mais qu'on a des matchs
-  const leagueName = serie?.league?.name || (matches.length > 0 ? matches[0].league.name : 'Tournoi')
+  const leagueName =
+    serie?.league?.name || (matches.length > 0 ? matches[0].league.name : 'Tournoi')
   const gameSlug = serie?.videogame?.slug || (matches.length > 0 ? matches[0].videogame.slug : '')
   const gameSquare = getGameSquare(gameSlug)
-  const fullSerieName = serie?.full_name || (matches.length > 0 ? matches[0].serie.full_name : 'Détails de la compétition')
-  const videogameName = serie?.videogame?.name || (matches.length > 0 ? matches[0].videogame.name : '')
-  const beginAt = serie?.begin_at || (matches.length > 0 ? (matches[0].begin_at || matches[0].scheduled_at) : null)
+  const fullSerieName =
+    serie?.full_name ||
+    (matches.length > 0 ? matches[0].serie.full_name : 'Détails de la compétition')
+  const videogameName =
+    serie?.videogame?.name || (matches.length > 0 ? matches[0].videogame.name : '')
+  const beginAt =
+    serie?.begin_at || (matches.length > 0 ? matches[0].begin_at || matches[0].scheduled_at : null)
 
-  function NoMatches() {
-    return (
-      <div className="py-20 text-center rounded-2xl border border-dashed border-primary/20 bg-card/10">
-        <Trophy className="h-12 w-12 text-muted/20 mx-auto mb-4" />
-        <p className="text-muted-foreground font-medium">Aucun match n&apos;est encore programmé pour cette série.</p>
-        <Link href="/">
-          <Button variant="outline" className="mt-6">Explorer d&apos;autres tournois</Button>
-        </Link>
-      </div>
-    )
-  }
 
   // Grouper les matchs par tournoi (phase)
-  const matchesByTournament = matches.reduce((acc, match) => {
-    const tournamentName = match.tournament?.name || 'Autres'
-    if (!acc[tournamentName]) {
-      acc[tournamentName] = []
-    }
-    acc[tournamentName].push(match)
-    return acc
-  }, {} as Record<string, PandaScoreMatch[]>)
+  const matchesByTournament = matches.reduce(
+    (acc, match) => {
+      const tournamentName = match.tournament?.name || 'Autres'
+      if (!acc[tournamentName]) {
+        acc[tournamentName] = []
+      }
+      acc[tournamentName].push(match)
+      return acc
+    },
+    {} as Record<string, PandaScoreMatch[]>
+  )
 
   // Trier les tournois par date du premier match
   const sortedTournamentNames = Object.keys(matchesByTournament).sort((a, b) => {
-    const dateA = new Date(matchesByTournament[a][0].begin_at || matchesByTournament[a][0].scheduled_at).getTime()
-    const dateB = new Date(matchesByTournament[b][0].begin_at || matchesByTournament[b][0].scheduled_at).getTime()
+    const dateA = new Date(
+      matchesByTournament[a][0].begin_at || matchesByTournament[a][0].scheduled_at
+    ).getTime()
+    const dateB = new Date(
+      matchesByTournament[b][0].begin_at || matchesByTournament[b][0].scheduled_at
+    ).getTime()
     return dateA - dateB
   })
 
@@ -175,7 +141,14 @@ export default async function SeriePage({ params }: SeriePageProps) {
       if (!team) continue
       const key = `${team.id}-${phase}`
       if (!teamsMap.has(key)) {
-        teamsMap.set(key, { id: team.id, name: team.name, image_url: team.image_url ?? null, wins: 0, losses: 0, phase })
+        teamsMap.set(key, {
+          id: team.id,
+          name: team.name,
+          image_url: team.image_url ?? null,
+          wins: 0,
+          losses: 0,
+          phase,
+        })
       }
     }
     if (match.status === 'finished' && match.results && match.opponents?.length === 2) {
@@ -188,16 +161,22 @@ export default async function SeriePage({ params }: SeriePageProps) {
         const winner = r1.score > r2.score ? t1.id : t2.id
         const k1 = `${t1.id}-${phase}`
         const k2 = `${t2.id}-${phase}`
-        if (teamsMap.has(k1)) winner === t1.id ? teamsMap.get(k1)!.wins++ : teamsMap.get(k1)!.losses++
-        if (teamsMap.has(k2)) winner === t2.id ? teamsMap.get(k2)!.wins++ : teamsMap.get(k2)!.losses++
+        if (teamsMap.has(k1)) {
+          if (winner === t1.id) teamsMap.get(k1)!.wins++
+          else teamsMap.get(k1)!.losses++
+        }
+        if (teamsMap.has(k2)) {
+          if (winner === t2.id) teamsMap.get(k2)!.wins++
+          else teamsMap.get(k2)!.losses++
+        }
       }
     }
   }
   const teams = Array.from(teamsMap.values())
-  const favoriteTeam = favoriteTeamId ? teams.find(t => t.id === favoriteTeamId) ?? null : null
+  const favoriteTeam = favoriteTeamId ? (teams.find((t) => t.id === favoriteTeamId) ?? null) : null
 
   // Déterminer si le tournoi a démarré
-  const serieStarted = matches.some(m => m.status === 'running' || m.status === 'finished')
+  const serieStarted = matches.some((m) => m.status === 'running' || m.status === 'finished')
 
   // Équipes encore actives (apparaissent dans un match à venir ou en cours)
   const activeTeamIds = new Set<number>()
@@ -210,7 +189,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
   }
 
   // Trouver le premier match non terminé et non annulé pour le scroll automatique
-  const firstUpcomingMatch = matches.find(m => m.status !== 'finished' && m.status !== 'canceled')
+  const firstUpcomingMatch = matches.find((m) => m.status !== 'finished' && m.status !== 'canceled')
 
   return (
     <main className="min-h-screen bg-background text-foreground pb-24">
@@ -224,7 +203,10 @@ export default async function SeriePage({ params }: SeriePageProps) {
       />
       {/* Back button */}
       <div className="container mx-auto px-4 pt-6">
-        <Link href="/" className="inline-flex items-center gap-2 group text-muted-foreground hover:text-primary transition-colors">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 group text-muted-foreground hover:text-primary transition-colors"
+        >
           <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
           <span className="text-sm font-bold uppercase tracking-widest">Retour</span>
         </Link>
@@ -238,11 +220,20 @@ export default async function SeriePage({ params }: SeriePageProps) {
             {/* Logo jeu */}
             <div className="relative h-48 w-48 flex-shrink-0 rounded-2xl bg-card/50 border border-primary/20 backdrop-blur shadow-2xl flex items-center justify-center overflow-hidden self-start">
               {gameSquare ? (
-                <Image src={gameSquare} alt={videogameName} fill className="object-cover" sizes="144px" priority />
+                <Image
+                  src={gameSquare}
+                  alt={videogameName}
+                  fill
+                  className="object-cover"
+                  sizes="144px"
+                  priority
+                />
               ) : (
                 <div className="flex flex-col h-full w-full items-center justify-center gap-2">
                   <Trophy className="h-14 w-14 text-primary/20" />
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{videogameName}</span>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                    {videogameName}
+                  </span>
                 </div>
               )}
             </div>
@@ -254,13 +245,20 @@ export default async function SeriePage({ params }: SeriePageProps) {
                 {videogameName && (
                   <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 border border-primary/20">
                     <Gamepad2 className="h-3 w-3 text-primary" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{videogameName}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      {videogameName}
+                    </span>
                   </div>
                 )}
                 <div className="flex items-center gap-1.5 rounded-full bg-muted/10 px-3 py-1 border border-muted/20">
                   <Calendar className="h-3 w-3 text-muted-foreground" />
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {beginAt ? new Date(beginAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'Compétition'}
+                    {beginAt
+                      ? new Date(beginAt).toLocaleDateString('fr-FR', {
+                          month: 'long',
+                          year: 'numeric',
+                        })
+                      : 'Compétition'}
                   </span>
                 </div>
                 {isJoined && (
@@ -298,21 +296,31 @@ export default async function SeriePage({ params }: SeriePageProps) {
             {favoriteTeam && (
               <div className="flex flex-col items-center gap-2 shrink-0 self-start">
                 <div className="relative h-20 w-20">
-                  <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-[0_0_20px_2px] shadow-yellow-500/20 bg-card/50">
+                  <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-[0_0_20px_2px] shadow-yellow-500/20 bg-zinc-200 dark:bg-zinc-800">
                     {favoriteTeam.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={favoriteTeam.image_url} alt={favoriteTeam.name} className="h-full w-full object-contain p-2" />
+                      <img
+                        src={favoriteTeam.image_url}
+                        alt={favoriteTeam.name}
+                        className="h-full w-full object-contain p-2"
+                      />
                     ) : (
                       <div className="h-full w-full flex items-center justify-center">
-                        <span className="text-2xl font-black text-yellow-500">{favoriteTeam.name[0]}</span>
+                        <span className="text-2xl font-black text-yellow-500">
+                          {favoriteTeam.name[0]}
+                        </span>
                       </div>
                     )}
                   </div>
                   <div className="absolute -top-1.5 -right-1.5 z-10 bg-yellow-500 rounded-full p-0.5">
-                    <svg className="h-3 w-3 fill-black" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg className="h-3 w-3 fill-black" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-500/80 truncate max-w-[80px] text-center">{favoriteTeam.name}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-500/80 truncate max-w-[80px] text-center">
+                  {favoriteTeam.name}
+                </span>
               </div>
             )}
           </div>
@@ -326,7 +334,9 @@ export default async function SeriePage({ params }: SeriePageProps) {
             <div className="h-8 w-1 bg-primary"></div>
             <h3 className="text-2xl font-black uppercase tracking-widest">Calendrier</h3>
           </div>
-          <span className="text-xs font-mono text-muted-foreground uppercase">{matches.length} MATCHS TROUVÉS</span>
+          <span className="text-xs font-mono text-muted-foreground uppercase">
+            {matches.length} MATCHS TROUVÉS
+          </span>
         </div>
 
         {sortedTournamentNames.length > 0 ? (

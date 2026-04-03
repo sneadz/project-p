@@ -69,7 +69,9 @@ export default function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md border-primary/20 bg-card/50 backdrop-blur">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold tracking-tighter text-primary">grind.gg</CardTitle>
+          <CardTitle className="text-3xl font-bold tracking-tighter text-primary">
+            grind.gg
+          </CardTitle>
           <CardDescription>Enter your details to access the pick&apos;em arena</CardDescription>
         </CardHeader>
         <CardContent>

@@ -33,9 +33,7 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
     }
     if (username.trim()) updates.username = username.trim()
 
-    const { error } = await supabase
-      .from('profiles')
-      .upsert({ id: userId, ...updates })
+    const { error } = await supabase.from('profiles').upsert({ id: userId, ...updates })
 
     if (error) {
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' })
@@ -50,13 +48,16 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
 
   return (
     <div className="space-y-10">
-
       {/* Avatar actuel */}
       <div className="flex flex-col items-center gap-3">
         <div className="h-24 w-24 rounded-xl overflow-hidden border-2 border-primary/40 bg-card flex items-center justify-center">
           {currentAvatarSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={currentAvatarSrc} alt="Avatar sélectionné" className="h-full w-full object-cover" />
+            <img
+              src={currentAvatarSrc}
+              alt="Avatar sélectionné"
+              className="h-full w-full object-cover"
+            />
           ) : (
             <span className="text-3xl text-muted-foreground">?</span>
           )}
@@ -75,9 +76,10 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
                 key={avatar.id}
                 onClick={() => setSelectedAvatar(avatar.id)}
                 className={`relative h-16 w-16 mx-auto rounded-xl overflow-hidden border-2 transition-all duration-150
-                  ${isSelected
-                    ? 'border-primary scale-110 shadow-[0_0_10px_2px] shadow-primary/40'
-                    : 'border-border hover:border-primary/50 hover:scale-105'
+                  ${
+                    isSelected
+                      ? 'border-primary scale-110 shadow-[0_0_10px_2px] shadow-primary/40'
+                      : 'border-border hover:border-primary/50 hover:scale-105'
                   }`}
                 title={avatar.label}
               >
@@ -92,7 +94,9 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl }: Profi
             )
           })}
         </div>
-        <p className="text-xs text-muted-foreground">D&apos;autres avatars seront disponibles prochainement.</p>
+        <p className="text-xs text-muted-foreground">
+          D&apos;autres avatars seront disponibles prochainement.
+        </p>
       </div>
 
       {/* Username */}

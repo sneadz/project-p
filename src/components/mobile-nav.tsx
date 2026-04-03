@@ -2,10 +2,10 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Trophy, BarChart2, User } from 'lucide-react'
+import { Trophy, BarChart2 } from 'lucide-react'
 
 const navItems = [
-  { href: '/',        label: 'Compétitions', icon: Trophy    },
+  { href: '/', label: 'Compétitions', icon: Trophy },
   { href: '/profile', label: 'Statistiques', icon: BarChart2 },
 ]
 

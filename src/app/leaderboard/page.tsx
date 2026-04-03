@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getAvatarSrc } from '@/lib/avatars'
-import { Gem, User, Target, Crosshair } from 'lucide-react'
+import { User, Target, Crosshair } from 'lucide-react'
 
 export const revalidate = 60
 
@@ -19,55 +19,60 @@ const MEDAL: Record<number, { emoji: string }> = {
   3: { emoji: '🥉' },
 }
 
-const RANK_STYLE: Record<number, { card: string; avatar: string; name: string; shards: string; emoji: string }> = {
+const RANK_STYLE: Record<
+  number,
+  { card: string; avatar: string; name: string; shards: string; emoji: string }
+> = {
   1: {
-    card:   'bg-card border-yellow-400/30 shadow-[0_0_20px_0px] shadow-yellow-400/10 px-6 py-5 -mx-8',
+    card: 'bg-card border-yellow-400/30 shadow-[0_0_20px_0px] shadow-yellow-400/10 px-6 py-5 -mx-8',
     avatar: 'h-14 w-14 border-yellow-400/50',
-    name:   'text-lg font-black',
+    name: 'text-lg font-black',
     shards: 'text-base',
-    emoji:  'text-3xl',
+    emoji: 'text-3xl',
   },
   2: {
-    card:   'bg-card border-slate-400/20 shadow-sm px-5 py-4 -mx-5',
+    card: 'bg-card border-slate-400/20 shadow-sm px-5 py-4 -mx-5',
     avatar: 'h-12 w-12 border-slate-400/30',
-    name:   'text-base font-black',
+    name: 'text-base font-black',
     shards: 'text-sm',
-    emoji:  'text-2xl',
+    emoji: 'text-2xl',
   },
   3: {
-    card:   'bg-card border-amber-600/20 shadow-sm px-5 py-3.5 -mx-2',
+    card: 'bg-card border-amber-600/20 shadow-sm px-5 py-3.5 -mx-2',
     avatar: 'h-11 w-11 border-amber-600/20',
-    name:   'text-sm font-black',
+    name: 'text-sm font-black',
     shards: 'text-sm',
-    emoji:  'text-xl',
+    emoji: 'text-xl',
   },
 }
 
 export default async function LeaderboardPage() {
   const supabase = createClient()
 
-  const { data: players } = await supabase
+  const { data: players } = (await supabase
     .from('profiles')
     .select('id, username, avatar_url, total_shards, correct_predictions, exact_predictions')
     .order('correct_predictions', { ascending: false })
-    .limit(20) as { data: LeaderboardEntry[] | null }
+    .limit(20)) as { data: LeaderboardEntry[] | null }
 
   const list = players ?? []
 
   // Utilisateur connecté
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   let currentPlayer: LeaderboardEntry | null = null
   let currentRank: number | null = null
 
   if (user) {
-    const { data: profile } = await supabase
+    const { data: profile } = (await supabase
       .from('profiles')
-      .select('id, username, avatar_url, total_shards')
+      .select('id, username, avatar_url, total_shards, correct_predictions, exact_predictions')
       .eq('id', user.id)
-      .single() as { data: LeaderboardEntry | null }
+      .single()) as { data: LeaderboardEntry | null }
 
     if (profile) {
-      const isInTop20 = list.some(p => p.id === user.id)
+      const isInTop20 = list.some((p) => p.id === user.id)
       if (!isInTop20) {
         const { count } = await supabase
           .from('profiles')
@@ -98,10 +103,7 @@ export default async function LeaderboardPage() {
             <div
               key={player.id}
               className={`flex items-center gap-4 rounded-xl border transition-colors
-                ${style
-                  ? style.card
-                  : 'bg-card/50 border-border/40 px-4 py-3'
-                }`}
+                ${style ? style.card : 'bg-card/50 border-border/40 px-4 py-3'}`}
             >
               {/* Rank */}
               <div className="w-8 text-center shrink-0">
@@ -113,7 +115,9 @@ export default async function LeaderboardPage() {
               </div>
 
               {/* Avatar */}
-              <div className={`rounded-xl overflow-hidden border-2 bg-background flex items-center justify-center shrink-0 ${style?.avatar ?? 'h-10 w-10 border-primary/20'}`}>
+              <div
+                className={`rounded-xl overflow-hidden border-2 bg-background flex items-center justify-center shrink-0 ${style?.avatar ?? 'h-10 w-10 border-primary/20'}`}
+              >
                 {avatarSrc ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={avatarSrc} alt={displayName} className="h-full w-full object-cover" />
@@ -124,7 +128,9 @@ export default async function LeaderboardPage() {
 
               {/* Pseudo */}
               <div className="flex-1 min-w-0">
-                <p className={`truncate ${style?.name ?? 'text-sm font-bold text-muted-foreground'}`}>
+                <p
+                  className={`truncate ${style?.name ?? 'text-sm font-bold text-muted-foreground'}`}
+                >
                   {displayName}
                 </p>
               </div>
@@ -170,24 +176,33 @@ export default async function LeaderboardPage() {
               <div className="h-10 w-10 rounded-xl overflow-hidden border-2 border-primary/30 bg-background flex items-center justify-center shrink-0">
                 {getAvatarSrc(currentPlayer.avatar_url) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={getAvatarSrc(currentPlayer.avatar_url)!} alt="Vous" className="h-full w-full object-cover" />
+                  <img
+                    src={getAvatarSrc(currentPlayer.avatar_url)!}
+                    alt="Vous"
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <User className="h-4 w-4 text-primary" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold truncate text-primary">
-                  {currentPlayer.username || 'Vous'} <span className="text-[10px] font-normal text-muted-foreground">(vous)</span>
+                  {currentPlayer.username || 'Vous'}{' '}
+                  <span className="text-[10px] font-normal text-muted-foreground">(vous)</span>
                 </p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <div className="flex items-center gap-1 text-green-500" title="Paris réussis">
                   <Target className="h-3.5 w-3.5" />
-                  <span className="font-black text-sm tabular-nums">{currentPlayer.correct_predictions}</span>
+                  <span className="font-black text-sm tabular-nums">
+                    {currentPlayer.correct_predictions}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1 text-primary" title="Scores exacts">
                   <Crosshair className="h-3.5 w-3.5" />
-                  <span className="font-black text-sm tabular-nums">{currentPlayer.exact_predictions}</span>
+                  <span className="font-black text-sm tabular-nums">
+                    {currentPlayer.exact_predictions}
+                  </span>
                 </div>
               </div>
             </div>

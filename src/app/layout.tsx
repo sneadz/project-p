@@ -1,47 +1,47 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import { Oxanium } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster"
-import Sidebar from "@/components/sidebar"
-import { MobileNav } from "@/components/mobile-nav"
-import { ThemeProvider } from "@/components/theme-provider"
+import type { Metadata } from 'next'
+import localFont from 'next/font/local'
+import { Oxanium } from 'next/font/google'
+import './globals.css'
+import { Toaster } from '@/components/ui/toaster'
+import Sidebar from '@/components/sidebar'
+import { MobileNav } from '@/components/mobile-nav'
+import { ThemeProvider } from '@/components/theme-provider'
 
 const oxanium = Oxanium({
-  subsets: ["latin"],
-  variable: "--font-oxanium",
-  weight: ["700", "800"],
-});
+  subsets: ['latin'],
+  variable: '--font-oxanium',
+  weight: ['700', '800'],
+})
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  weight: '100 900',
+})
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
+  weight: '100 900',
+})
 
 export const metadata: Metadata = {
   title: "grind.gg | Esports Pick'em",
-  description: "Grind the ladder, earn shards and climb the global leaderboard.",
-};
+  description: 'Grind the ladder, earn shards and climb the global leaderboard.',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${oxanium.variable} antialiased bg-background`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${oxanium.variable} antialiased bg-background`}
+      >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-
           {/* Desktop layout */}
           <div className="hidden md:flex h-screen p-3 gap-3">
-
             {/* Sidebar flottante */}
             <Sidebar />
 
@@ -61,5 +61,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

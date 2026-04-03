@@ -7,7 +7,9 @@ import { ArrowLeft } from 'lucide-react'
 
 export default async function ProfileEditPage() {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
 
@@ -20,11 +22,14 @@ export default async function ProfileEditPage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="container mx-auto max-w-md px-4 py-16">
-
         {/* Header */}
         <div className="mb-10 space-y-4">
           <Link href="/profile">
-            <Button variant="ghost" size="sm" className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2 -ml-2 text-muted-foreground hover:text-foreground"
+            >
               <ArrowLeft className="h-4 w-4" />
               Retour au profil
             </Button>
@@ -40,7 +45,6 @@ export default async function ProfileEditPage() {
           initialUsername={profile?.username ?? null}
           initialAvatarUrl={profile?.avatar_url ?? null}
         />
-
       </section>
     </main>
   )

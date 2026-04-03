@@ -28,9 +28,9 @@ export function JoinButton({ serieId, isJoined, isLoggedIn }: JoinButtonProps) {
   const handleJoin = async () => {
     if (!isLoggedIn) {
       toast({
-        title: "Connexion requise",
-        description: "Vous devez être connecté pour participer à une compétition.",
-        variant: "destructive"
+        title: 'Connexion requise',
+        description: 'Vous devez être connecté pour participer à une compétition.',
+        variant: 'destructive',
       })
       return
     }
@@ -40,21 +40,21 @@ export function JoinButton({ serieId, isJoined, isLoggedIn }: JoinButtonProps) {
       const result = await joinCompetition(serieId)
       if (result.error) {
         toast({
-          title: "Erreur",
+          title: 'Erreur',
           description: result.error,
-          variant: "destructive"
+          variant: 'destructive',
         })
       } else {
         toast({
-          title: "Succès !",
-          description: "Vous participez maintenant à cette compétition.",
+          title: 'Succès !',
+          description: 'Vous participez maintenant à cette compétition.',
         })
       }
-    } catch (error) {
+    } catch {
       toast({
-        title: "Erreur",
-        description: "Une erreur inattendue est survenue.",
-        variant: "destructive"
+        title: 'Erreur',
+        description: 'Une erreur inattendue est survenue.',
+        variant: 'destructive',
       })
     } finally {
       setLoading(false)
@@ -62,16 +62,12 @@ export function JoinButton({ serieId, isJoined, isLoggedIn }: JoinButtonProps) {
   }
 
   return (
-    <Button 
-      onClick={handleJoin} 
+    <Button
+      onClick={handleJoin}
       disabled={loading}
       className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-widest px-8"
     >
-      {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <UserPlus className="h-4 w-4" />
-      )}
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
       Participer
     </Button>
   )

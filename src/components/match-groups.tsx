@@ -16,14 +16,22 @@ interface MatchGroupsProps {
   favoriteTeamId?: number | null
 }
 
-export function MatchGroups({ sortedTournamentNames, matchesByTournament, userBets, isJoined, serieId, winRates, favoriteTeamId }: MatchGroupsProps) {
+export function MatchGroups({
+  sortedTournamentNames,
+  matchesByTournament,
+  userBets,
+  isJoined,
+  serieId,
+  winRates,
+  favoriteTeamId,
+}: MatchGroupsProps) {
   const [showFinished, setShowFinished] = useState(false)
 
   const isGroupFinished = (phase: string) =>
-    matchesByTournament[phase].every(m => m.status === 'finished' || m.status === 'canceled')
+    matchesByTournament[phase].every((m) => m.status === 'finished' || m.status === 'canceled')
 
-  const visibleGroups = sortedTournamentNames.filter(phase => !isGroupFinished(phase))
-  const finishedGroups = sortedTournamentNames.filter(phase => isGroupFinished(phase))
+  const visibleGroups = sortedTournamentNames.filter((phase) => !isGroupFinished(phase))
+  const finishedGroups = sortedTournamentNames.filter((phase) => isGroupFinished(phase))
 
   const groupsToShow = showFinished ? sortedTournamentNames : visibleGroups
 
@@ -60,14 +68,15 @@ export function MatchGroups({ sortedTournamentNames, matchesByTournament, userBe
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowFinished(prev => !prev)}
+            onClick={() => setShowFinished((prev) => !prev)}
             className="gap-2 text-muted-foreground border-muted-foreground/20 hover:text-foreground"
           >
-            <ChevronDown className={`h-4 w-4 transition-transform ${showFinished ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${showFinished ? 'rotate-180' : ''}`}
+            />
             {showFinished
               ? 'Masquer les phases terminées'
-              : `Afficher les phases terminées (${finishedGroups.length})`
-            }
+              : `Afficher les phases terminées (${finishedGroups.length})`}
           </Button>
         </div>
       )}

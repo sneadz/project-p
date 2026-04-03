@@ -1,11 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { PandaScoreSerie } from "@/types/pandascore"
-import { Calendar, Trophy } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
-import { getGameBanner } from "@/lib/games"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { PandaScoreSerie } from '@/types/pandascore'
+import { Calendar, Trophy } from 'lucide-react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { cn } from '@/lib/utils'
+import { getGameBanner } from '@/lib/games'
 
 interface SerieCardProps {
   serie: PandaScoreSerie
@@ -14,11 +14,12 @@ interface SerieCardProps {
 
 export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
   const tier = serie.tournaments[0]?.tier?.toUpperCase() || '?'
-  const tierColor = tier === 'S' 
-    ? 'bg-yellow-500 text-black border-yellow-400' 
-    : tier === 'A' 
-    ? 'bg-slate-300 text-black border-slate-200' 
-    : ''
+  const tierColor =
+    tier === 'S'
+      ? 'bg-yellow-500 text-black border-yellow-400'
+      : tier === 'A'
+        ? 'bg-slate-300 text-black border-slate-200'
+        : ''
 
   const startDate = new Date(serie.begin_at)
   const isStarted = startDate <= new Date()
@@ -33,11 +34,14 @@ export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
 
   return (
     <Link href={`/series/${serie.id}`}>
-      <Card className={`group relative h-full overflow-hidden bg-card/50 transition-all hover:bg-card/80
-        ${isRegistered
-          ? 'border-primary/60 hover:border-primary shadow-[0_0_12px_0px] shadow-primary/20'
-          : 'border-zinc-500/70 hover:border-zinc-400'
-        }`}>
+      <Card
+        className={`group relative h-full overflow-hidden bg-card/50 transition-all hover:bg-card/80
+        ${
+          isRegistered
+            ? 'border-primary/60 hover:border-primary shadow-[0_0_12px_0px] shadow-primary/20'
+            : 'border-zinc-500/70 hover:border-zinc-400'
+        }`}
+      >
         <CardHeader className="relative pb-0">
           {isRegistered && (
             <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
@@ -46,7 +50,7 @@ export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
           )}
 
           <div className="flex items-center justify-between mb-2">
-            <Badge className={cn("font-bold", tierColor)} variant="outline">
+            <Badge className={cn('font-bold', tierColor)} variant="outline">
               TIER {tier}
             </Badge>
             <div className="flex flex-col items-end gap-1">
@@ -60,10 +64,14 @@ export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                   </span>
-                  <span className="text-[10px] font-bold text-green-500 uppercase tracking-tighter">En cours</span>
+                  <span className="text-[10px] font-bold text-green-500 uppercase tracking-tighter">
+                    En cours
+                  </span>
                 </div>
               ) : (
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter italic">À venir</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter italic">
+                  À venir
+                </span>
               )}
             </div>
           </div>
@@ -79,7 +87,9 @@ export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
             ) : (
               <div className="flex flex-col items-center justify-center gap-2">
                 <Trophy className="h-12 w-12 text-primary/20 animate-pulse" />
-                <span className="text-[10px] font-bold text-muted-foreground uppercase">{serie.videogame.name}</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                  {serie.videogame.name}
+                </span>
               </div>
             )}
           </div>
@@ -88,9 +98,7 @@ export function SerieCard({ serie, isRegistered = false }: SerieCardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground line-clamp-2 italic">
-            {serie.full_name}
-          </p>
+          <p className="text-sm text-muted-foreground line-clamp-2 italic">{serie.full_name}</p>
           <div className="mt-4 flex items-center justify-between">
             <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
               {serie.videogame.name}
