@@ -150,8 +150,8 @@ export function SeriePageHeader({
           {/* Favori — à droite sur desktop, inline sur mobile */}
           {favoriteTeam && (
             <div className="flex flex-col items-center gap-2 shrink-0 self-center md:self-start mx-auto md:mx-0">
-              <div className="relative h-16 w-16 md:h-20 md:w-20">
-                <div className="h-16 w-16 md:h-20 md:w-20 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-[0_0_20px_2px] shadow-yellow-500/20 bg-zinc-200 dark:bg-zinc-800">
+              <div className="relative h-20 w-20 md:h-20 md:w-20">
+                <div className="h-20 w-20 md:h-20 md:w-20 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-[0_0_20px_2px] shadow-yellow-500/20 bg-zinc-200 dark:bg-zinc-800">
                   {favoriteTeam.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
