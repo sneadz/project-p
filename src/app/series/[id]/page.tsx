@@ -14,6 +14,7 @@ import { PandaScoreMatch } from '@/types/pandascore'
 import { calculateSerieStats, calculateWinRates } from '@/lib/scoring'
 import { NoMatches } from '@/components/no-matches'
 import { SeriePageHeader } from '@/components/serie-page-header'
+import { LeagueSection } from '@/components/league-section'
 
 interface SeriePageProps {
   params: {
@@ -134,6 +135,49 @@ export default async function SeriePage({ params }: SeriePageProps) {
   }
 
   const winRates = calculateWinRates(matches)
+
+  // League data
+  let userLeague: { id: string; name: string; invite_code: string; owner_id: string } | null = null
+  let leagueMembers: { user_id: string; username: string | null; avatar_url: string | null; correct_predictions: number; exact_predictions: number }[] = []
+
+  if (user && isJoined) {
+    const { data: memberRow } = await supabase
+      .from('league_members')
+      .select('league_id, leagues!inner(id, name, invite_code, owner_id, serie_id)')
+      .eq('user_id', user.id)
+      .eq('leagues.serie_id', serieId)
+      .maybeSingle()
+
+    if (memberRow) {
+      const league = memberRow.leagues as unknown as { id: string; name: string; invite_code: string; owner_id: string; serie_id: number }
+      userLeague = { id: league.id, name: league.name, invite_code: league.invite_code, owner_id: league.owner_id }
+
+      // Fetch members + their stats
+      const { data: members } = await supabase
+        .from('league_members')
+        .select('user_id')
+        .eq('league_id', league.id)
+
+      if (members && members.length > 0) {
+        const memberIds = members.map((m) => m.user_id)
+        const [{ data: profiles }, { data: regs }] = await Promise.all([
+          supabase.from('profiles').select('id, username, avatar_url').in('id', memberIds),
+          supabase.from('registrations').select('user_id, correct_predictions, exact_predictions').eq('serie_id', serieId).in('user_id', memberIds),
+        ])
+        const pMap = new Map((profiles ?? []).map((p) => [p.id, p]))
+        const rMap = new Map((regs ?? []).map((r) => [r.user_id, r]))
+        leagueMembers = memberIds
+          .map((uid) => ({
+            user_id: uid,
+            username: pMap.get(uid)?.username ?? null,
+            avatar_url: pMap.get(uid)?.avatar_url ?? null,
+            correct_predictions: rMap.get(uid)?.correct_predictions ?? 0,
+            exact_predictions: rMap.get(uid)?.exact_predictions ?? 0,
+          }))
+          .sort((a, b) => b.correct_predictions - a.correct_predictions || b.exact_predictions - a.exact_predictions)
+      }
+    }
+  }
 
   if (!serie && matches.length === 0) {
     notFound()
@@ -276,6 +320,8 @@ export default async function SeriePage({ params }: SeriePageProps) {
         userCorrect={userCorrect}
         userExact={userExact}
         favoriteTeam={favoriteTeam}
+        userLeague={userLeague}
+        leagueMembers={leagueMembers}
       />
 
       {/* Liste des Matchs par Phases */}
