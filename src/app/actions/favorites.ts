@@ -21,7 +21,7 @@ export async function addGlobalFavorite(
   const parsed = addSchema.safeParse({ teamId, teamName, teamImageUrl })
   if (!parsed.success) return { error: 'Données invalides.' }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Vous devez être connecté.' }
 
@@ -45,7 +45,7 @@ export async function addGlobalFavorite(
 }
 
 export async function removeGlobalFavorite(teamId: number) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Vous devez être connecté.' }
 
@@ -66,7 +66,7 @@ export async function searchTeamsAction(query: string) {
 }
 
 export async function refreshSerieStats(serieId: number) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
 

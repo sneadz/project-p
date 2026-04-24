@@ -28,7 +28,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
     notFound()
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -98,7 +98,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
   let currentUserRank: number | null = null
 
   if (matches.length > 0) {
-    const supabaseForLeader = createClient()
+    const supabaseForLeader = await createClient()
     const { data: regs } = await supabaseForLeader
       .from('registrations')
       .select('user_id, correct_predictions, exact_predictions')

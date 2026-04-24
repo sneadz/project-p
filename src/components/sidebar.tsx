@@ -6,7 +6,7 @@ import { User, LogOut } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function Sidebar() {
-  const supabase = createClient()
+  const supabase = await createClient()
   let user = null
   let profile = null
 

@@ -47,7 +47,7 @@ const RANK_STYLE: Record<
 }
 
 export default async function LeaderboardPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data: players } = (await supabase
     .from('profiles')

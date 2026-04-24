@@ -8,7 +8,7 @@ import { getMatchesBySerie } from '@/lib/pandascore'
 import { calculateMatchShards, getRealScore } from '@/lib/scoring'
 
 export default async function ProfilePage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

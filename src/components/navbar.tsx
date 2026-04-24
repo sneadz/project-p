@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { User, Trophy } from 'lucide-react'
 
 export default async function Navbar() {
-  const supabase = createClient()
+  const supabase = await createClient()
   let user = null
   let profile = null
 

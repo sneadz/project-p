@@ -17,7 +17,7 @@ export async function updateProfile(username: string, avatarUrl?: string) {
   const parsed = updateProfileSchema.safeParse({ username, avatarUrl })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

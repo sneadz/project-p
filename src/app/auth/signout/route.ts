@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
 export async function POST() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const {
     data: { user },

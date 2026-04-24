@@ -10,7 +10,7 @@ export async function sendFriendRequest(addresseeId: string) {
   const parsed = uuidSchema.safeParse({ id: addresseeId })
   if (!parsed.success) return { error: 'ID invalide.' }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -36,7 +36,7 @@ export async function acceptFriendRequest(friendshipId: string) {
   const parsed = uuidSchema.safeParse({ id: friendshipId })
   if (!parsed.success) return { error: 'ID invalide.' }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -59,7 +59,7 @@ export async function declineFriendRequest(friendshipId: string) {
   const parsed = uuidSchema.safeParse({ id: friendshipId })
   if (!parsed.success) return { error: 'ID invalide.' }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -81,7 +81,7 @@ export async function removeFriend(friendshipId: string) {
   const parsed = uuidSchema.safeParse({ id: friendshipId })
   if (!parsed.success) return { error: 'ID invalide.' }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

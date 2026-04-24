@@ -25,7 +25,7 @@ const favoriteTeamSchema = z.object({
 export async function joinCompetition(serieId: number) {
   const parsed = joinSchema.safeParse({ serieId })
   if (!parsed.success) return { error: 'Données invalides.' }
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const {
     data: { user },
@@ -54,7 +54,7 @@ export async function placeBet(matchId: number, serieId: number, score: string) 
   const parsed = betSchema.safeParse({ matchId, serieId, score })
   if (!parsed.success) return { error: 'Données invalides.' }
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const {
     data: { user },
@@ -114,7 +114,7 @@ export async function setFavoriteTeam(
   const parsed = favoriteTeamSchema.safeParse({ serieId, teamId, teamName, teamImageUrl })
   if (!parsed.success) return { error: 'Données invalides.' }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

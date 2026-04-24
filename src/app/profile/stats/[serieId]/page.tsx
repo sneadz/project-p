@@ -17,7 +17,7 @@ export default async function SerieStatsPage({ params }: SerieStatsPageProps) {
   const serieId = parseInt(params.serieId)
   if (isNaN(serieId)) notFound()
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
