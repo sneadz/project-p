@@ -118,6 +118,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
           leagueId={league.id}
           inviteCode={league.invite_code}
           isOwner={league.owner_id === user.id}
+          leagueName={league.name}
         />
 
         {/* Compétitions */}
