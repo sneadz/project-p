@@ -14,7 +14,6 @@ import { PandaScoreMatch } from '@/types/pandascore'
 import { calculateSerieStats, calculateWinRates } from '@/lib/scoring'
 import { NoMatches } from '@/components/no-matches'
 import { SeriePageHeader } from '@/components/serie-page-header'
-import { SerieLeaderboard } from '@/components/serie-leaderboard'
 
 interface SeriePageProps {
   params: {
@@ -94,17 +93,44 @@ export default async function SeriePage({ params }: SeriePageProps) {
     userExact = stats.exact
   }
 
-  // Rang du joueur pour le badge dans le header
+  // Leaderboard data
+  let leaderboardEntries: { user_id: string; correct_predictions: number; exact_predictions: number; username: string | null; avatar_url: string | null }[] = []
   let currentUserRank: number | null = null
 
-  if (matches.length > 0 && user) {
+  if (matches.length > 0) {
     const supabaseForLeader = createClient()
-    const { count } = await supabaseForLeader
+    const { data: regs } = await supabaseForLeader
       .from('registrations')
-      .select('*', { count: 'exact', head: true })
+      .select('user_id, correct_predictions, exact_predictions')
       .eq('serie_id', serieId)
-      .gt('correct_predictions', userCorrect)
-    currentUserRank = (count ?? 0) + 1
+      .order('correct_predictions', { ascending: false })
+      .order('exact_predictions', { ascending: false })
+      .limit(10)
+
+    if (regs && regs.length > 0) {
+      const uids = regs.map((r) => r.user_id)
+      const { data: profiles } = await supabaseForLeader
+        .from('profiles')
+        .select('id, username, avatar_url')
+        .in('id', uids)
+      const pMap = new Map((profiles ?? []).map((p) => [p.id, p]))
+      leaderboardEntries = regs.map((r) => ({
+        ...r,
+        correct_predictions: r.correct_predictions ?? 0,
+        exact_predictions: r.exact_predictions ?? 0,
+        username: pMap.get(r.user_id)?.username ?? null,
+        avatar_url: pMap.get(r.user_id)?.avatar_url ?? null,
+      }))
+    }
+
+    if (user) {
+      const { count } = await supabaseForLeader
+        .from('registrations')
+        .select('*', { count: 'exact', head: true })
+        .eq('serie_id', serieId)
+        .gt('correct_predictions', userCorrect)
+      currentUserRank = (count ?? 0) + 1
+    }
   }
 
   const winRates = calculateWinRates(matches)
@@ -245,11 +271,12 @@ export default async function SeriePage({ params }: SeriePageProps) {
         favoriteTeamId={favoriteTeamId}
         serieStarted={serieStarted}
         activeTeamIds={Array.from(activeTeamIds)}
+        leaderboardEntries={leaderboardEntries}
         currentUserId={user?.id}
+        userCorrect={userCorrect}
+        userExact={userExact}
         favoriteTeam={favoriteTeam}
       />
-
-      <SerieLeaderboard serieId={serieId} currentUserId={user?.id} />
 
       {/* Liste des Matchs par Phases */}
       <section className="container mx-auto px-4 mt-8">

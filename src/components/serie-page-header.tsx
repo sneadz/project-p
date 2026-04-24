@@ -1,6 +1,15 @@
 import Image from 'next/image'
 import { Calendar, Gamepad2, Trophy, Gem } from 'lucide-react'
 import { TeamsModal, TeamSummary } from '@/components/teams-modal'
+import { SerieLeaderboardModal } from '@/components/serie-leaderboard-modal'
+
+interface LeaderboardEntry {
+  user_id: string
+  correct_predictions: number
+  exact_predictions: number
+  username: string | null
+  avatar_url: string | null
+}
 
 interface SeriePageHeaderProps {
   leagueName: string
@@ -16,7 +25,10 @@ interface SeriePageHeaderProps {
   favoriteTeamId: number | null
   serieStarted: boolean
   activeTeamIds: number[]
+  leaderboardEntries: LeaderboardEntry[]
   currentUserId?: string
+  userCorrect: number
+  userExact: number
   favoriteTeam: TeamSummary | null
 }
 
@@ -34,7 +46,10 @@ export function SeriePageHeader({
   favoriteTeamId,
   serieStarted,
   activeTeamIds,
+  leaderboardEntries,
   currentUserId,
+  userCorrect,
+  userExact,
   favoriteTeam,
 }: SeriePageHeaderProps) {
   return (
@@ -120,6 +135,14 @@ export function SeriePageHeader({
                 currentFavoriteTeamId={favoriteTeamId}
                 serieStarted={serieStarted}
                 activeTeamIds={activeTeamIds}
+              />
+              <SerieLeaderboardModal
+                serieId={serieId}
+                entries={leaderboardEntries}
+                currentUserId={currentUserId}
+                currentUserRank={currentUserRank}
+                currentUserCorrect={userCorrect}
+                currentUserExact={userExact}
               />
             </div>
           </div>
