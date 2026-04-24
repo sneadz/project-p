@@ -1,15 +1,6 @@
 import Image from 'next/image'
 import { Calendar, Gamepad2, Trophy, Gem } from 'lucide-react'
 import { TeamsModal, TeamSummary } from '@/components/teams-modal'
-import { SerieLeaderboardModal } from '@/components/serie-leaderboard-modal'
-
-interface LeaderboardEntry {
-  user_id: string
-  correct_predictions: number
-  exact_predictions: number
-  username: string | null
-  avatar_url: string | null
-}
 
 interface SeriePageHeaderProps {
   leagueName: string
@@ -25,10 +16,7 @@ interface SeriePageHeaderProps {
   favoriteTeamId: number | null
   serieStarted: boolean
   activeTeamIds: number[]
-  leaderboardEntries: LeaderboardEntry[]
   currentUserId?: string
-  userCorrect: number
-  userExact: number
   favoriteTeam: TeamSummary | null
 }
 
@@ -46,10 +34,7 @@ export function SeriePageHeader({
   favoriteTeamId,
   serieStarted,
   activeTeamIds,
-  leaderboardEntries,
   currentUserId,
-  userCorrect,
-  userExact,
   favoriteTeam,
 }: SeriePageHeaderProps) {
   return (
@@ -136,22 +121,14 @@ export function SeriePageHeader({
                 serieStarted={serieStarted}
                 activeTeamIds={activeTeamIds}
               />
-              <SerieLeaderboardModal
-                serieId={serieId}
-                entries={leaderboardEntries}
-                currentUserId={currentUserId}
-                currentUserRank={currentUserRank}
-                currentUserCorrect={userCorrect}
-                currentUserExact={userExact}
-              />
             </div>
           </div>
 
           {/* Favori — à droite sur desktop, inline sur mobile */}
           {favoriteTeam && (
             <div className="flex flex-col items-center gap-2 shrink-0 self-center md:self-start mx-auto md:mx-0">
-              <div className="relative h-20 w-20 md:h-20 md:w-20">
-                <div className="h-20 w-20 md:h-20 md:w-20 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-[0_0_20px_2px] shadow-yellow-500/20 bg-zinc-200 dark:bg-zinc-800">
+              <div className="relative h-28 w-28 md:h-20 md:w-20">
+                <div className="h-28 w-28 md:h-20 md:w-20 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-[0_0_20px_2px] shadow-yellow-500/20 bg-zinc-200 dark:bg-zinc-800">
                   {favoriteTeam.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
