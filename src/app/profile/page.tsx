@@ -237,7 +237,7 @@ export default async function ProfilePage() {
               </h2>
               <div className="space-y-2">
                 {archivedStats.map((s) => (
-                  <div key={s.serie_id} className="rounded-lg border border-border bg-card p-4 flex items-center justify-between gap-4">
+                  <Link key={s.serie_id} href={`/profile/stats/${s.serie_id}`} className="rounded-lg border border-border bg-card p-4 flex items-center justify-between gap-4 hover:border-primary/40 transition-colors">
                     <div className="min-w-0">
                       <p className="text-sm font-bold truncate">{s.league_name}</p>
                       <p className="text-xs text-muted-foreground italic truncate">{s.serie_name}</p>
@@ -257,7 +257,7 @@ export default async function ProfilePage() {
                         <span className="text-sm font-black tabular-nums">{s.exact_predictions}</span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { User } from 'lucide-react'
+import { User, Trophy } from 'lucide-react'
 
 export default async function Navbar() {
   const supabase = createClient()
@@ -33,6 +33,10 @@ export default async function Navbar() {
           </h1>
         </Link>
         <div className="flex items-center gap-3">
+          <Link href="/leaderboard" className="hidden sm:flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+            <Trophy className="h-4 w-4" />
+            Classement
+          </Link>
           {user ? (
             <>
               <span className="text-sm font-medium hidden sm:block truncate max-w-[160px]">
