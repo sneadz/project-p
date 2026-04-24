@@ -89,7 +89,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
 
   return (
     <Card className={cn(
-      'group flex flex-col h-[310px] overflow-hidden bg-card/50 transition-all hover:bg-card/80',
+      'group flex flex-col min-h-[310px] overflow-hidden bg-card/50 transition-all hover:bg-card/80',
       isLive && 'border-green-500/50 shadow-[0_0_16px_0px] shadow-green-500/20 hover:border-green-500/80',
       isFinished && 'border-muted/30 hover:border-muted/50',
       isCanceled && 'opacity-60 grayscale border-red-500/20',

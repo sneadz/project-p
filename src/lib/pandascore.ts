@@ -162,7 +162,7 @@ export async function getTeamActiveSeries(teamId: number): Promise<PandaScoreSer
     return all.filter(
       (s) =>
         ['cs-go', 'cs-go-2', 'cs-2', 'valorant'].includes(s.videogame.slug) &&
-        s.end_at === null || (s.end_at && new Date(s.end_at) >= new Date())
+        (s.end_at === null || new Date(s.end_at) >= new Date())
     )
   } catch {
     return []
