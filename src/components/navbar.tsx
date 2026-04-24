@@ -37,6 +37,11 @@ export default async function Navbar() {
             <Trophy className="h-4 w-4" />
             Classement
           </Link>
+          {user && (
+            <Link href="/friends" className="hidden sm:flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+              Amis
+            </Link>
+          )}
           {user ? (
             <>
               <span className="text-sm font-medium hidden sm:block truncate max-w-[160px]">
