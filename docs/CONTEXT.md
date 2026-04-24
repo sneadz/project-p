@@ -105,20 +105,25 @@ Calculé dans `src/lib/scoring.ts`.
 
 ### Fait ✅
 - Home avec listing séries CS2/Valorant (filtrées tier S/A/B, running + upcoming)
-- Page série `/series/[id]` : matchs par phase, paris, leaderboard par série
+- Page série `/series/[id]` : matchs par phase, paris, leaderboard par série (modale)
 - Système de scoring (calcul à la volée)
 - Équipes favorites globales + par série
-- Leaderboard global `/leaderboard`
+- Leaderboard global `/leaderboard` (trié par correct_predictions + exact_predictions)
 - Profil utilisateur `/profile` (avatar, pseudo, préférences jeux)
 - Auth Supabase (magic link / OAuth)
 - Thème dark/light
 - Responsive mobile
+- **Auto-scoring cron** — `GET /api/cron/score` (protégé par `CRON_SECRET`), tourne toutes les 15 min via Vercel Cron, met à jour `registrations` + `profiles`
 
 ### À faire ❌
-- **Auto-scoring automatique** — mise à jour des stats en BDD via cron (voir `plans/01-auto-scoring.md`)
 - **Page stats/historique** — historique des paris, taux de réussite (voir `plans/02-stats-history.md`)
 - **Système d'amis** — recherche d'users, demandes d'amitié (voir `plans/03-friends.md`)
 - **Ligues privées** — leaderboards privés par compétition avec ses amis (voir `plans/04-private-leagues.md`)
+
+### Fixes effectués ✅
+- Bug priorité opérateurs dans `getTeamActiveSeries` (pandascore.ts)
+- Leaderboard trié par `correct_predictions` (pas `total_shards` — shards sont une monnaie spendable)
+- Match card en `min-h-[310px]` au lieu de hauteur fixe
 
 ---
 
