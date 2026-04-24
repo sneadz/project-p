@@ -52,8 +52,8 @@ export default async function LeaderboardPage() {
   const { data: players } = (await supabase
     .from('profiles')
     .select('id, username, avatar_url, total_shards, correct_predictions, exact_predictions')
-    .order('total_shards', { ascending: false })
     .order('correct_predictions', { ascending: false })
+    .order('exact_predictions', { ascending: false })
     .limit(20)) as { data: LeaderboardEntry[] | null }
 
   const list = players ?? []
@@ -78,7 +78,7 @@ export default async function LeaderboardPage() {
         const { count } = await supabase
           .from('profiles')
           .select('*', { count: 'exact', head: true })
-          .gt('total_shards', profile.total_shards)
+          .gt('correct_predictions', profile.correct_predictions)
         currentRank = (count ?? 0) + 1
         currentPlayer = profile
       }

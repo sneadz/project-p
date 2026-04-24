@@ -31,11 +31,13 @@ Les utilisateurs s'inscrivent à des compétitions, parient sur le score des mat
 | id | uuid (FK auth) | Identifiant utilisateur |
 | username | text | Pseudo affiché |
 | avatar_url | text | URL avatar |
-| total_shards | int | Total de points accumulés |
-| correct_predictions | int | Nombre de paris gagnants (bon vainqueur) |
+| total_shards | int | Portefeuille actuel (monte/descend selon achats cosmétiques) |
+| correct_predictions | int | Nombre de paris gagnants (bon vainqueur) — utilisé pour le classement |
 | exact_predictions | int | Nombre de scores exacts |
 | hide_cs2 | bool | Masquer les séries CS2 |
 | hide_valorant | bool | Masquer les séries Valorant |
+
+> **Note design shards :** Les shards sont une monnaie interne (future boutique cosmétiques). `total_shards` est le portefeuille spendable. Le classement trie par `correct_predictions` + `exact_predictions` pour ne pas pénaliser ceux qui dépensent leurs shards. Quand la boutique sera implémentée, ajouter une colonne `shards_earned` (cumul à vie, jamais décrémenté) pour un classement encore plus juste.
 
 ### `registrations`
 | Colonne | Type | Description |
