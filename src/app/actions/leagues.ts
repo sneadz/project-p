@@ -6,7 +6,6 @@ import { z } from 'zod'
 
 const createLeagueSchema = z.object({
   name: z.string().min(1).max(50),
-  serieId: z.number().int().positive(),
 })
 
 const joinLeagueSchema = z.object({
@@ -17,9 +16,9 @@ const leaveLeagueSchema = z.object({
   leagueId: z.string().uuid(),
 })
 
-export async function createLeague(name: string, serieId: number) {
-  const parsed = createLeagueSchema.safeParse({ name, serieId })
-  if (!parsed.success) return { error: 'Données invalides.' }
+export async function createLeague(name: string) {
+  const parsed = createLeagueSchema.safeParse({ name })
+  if (!parsed.success) return { error: 'Nom invalide.' }
 
   const supabase = await createClient()
   const {
@@ -27,44 +26,21 @@ export async function createLeague(name: string, serieId: number) {
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Vous devez être connecté.' }
 
-  // Vérifier que l'user est inscrit à la série
-  const { data: reg } = await supabase
-    .from('registrations')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('serie_id', serieId)
-    .single()
-
-  if (!reg) return { error: 'Vous devez être inscrit à la compétition pour créer une ligue.' }
-
-  // Vérifier qu'il n'est pas déjà dans une ligue sur cette série
-  const { data: existing } = await supabase
-    .from('league_members')
-    .select('league_id, leagues!inner(serie_id)')
-    .eq('user_id', user.id)
-    .eq('leagues.serie_id', serieId)
-    .maybeSingle()
-
-  if (existing) return { error: 'Vous êtes déjà dans une ligue pour cette compétition.' }
-
-  // Créer la ligue
   const { data: league, error: leagueError } = await supabase
     .from('leagues')
-    .insert({ name: parsed.data.name, serie_id: serieId, owner_id: user.id })
+    .insert({ name: parsed.data.name, owner_id: user.id })
     .select('id')
     .single()
 
   if (leagueError || !league) return { error: 'Erreur lors de la création de la ligue.' }
 
-  // Ajouter le créateur comme membre
   await supabase.from('league_members').insert({ league_id: league.id, user_id: user.id })
 
-  revalidatePath(`/series/${serieId}`)
   revalidatePath('/leagues')
-  return { success: true }
+  return { success: true, leagueId: league.id }
 }
 
-export async function joinLeague(inviteCode: string, serieId: number) {
+export async function joinLeague(inviteCode: string) {
   const parsed = joinLeagueSchema.safeParse({ inviteCode })
   if (!parsed.success) return { error: 'Code invalide.' }
 
@@ -74,27 +50,14 @@ export async function joinLeague(inviteCode: string, serieId: number) {
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Vous devez être connecté.' }
 
-  // Vérifier que l'user est inscrit à la série
-  const { data: reg } = await supabase
-    .from('registrations')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('serie_id', serieId)
-    .single()
-
-  if (!reg) return { error: 'Vous devez être inscrit à la compétition pour rejoindre une ligue.' }
-
-  // Trouver la ligue par code
   const { data: league } = await supabase
     .from('leagues')
-    .select('id, serie_id')
+    .select('id')
     .eq('invite_code', parsed.data.inviteCode.toLowerCase())
     .single()
 
-  if (!league) return { error: 'Code d\'invitation invalide.' }
-  if (league.serie_id !== serieId) return { error: 'Ce code est pour une autre compétition.' }
+  if (!league) return { error: "Code d'invitation invalide." }
 
-  // Vérifier qu'il n'est pas déjà membre
   const { data: alreadyMember } = await supabase
     .from('league_members')
     .select('league_id')
@@ -104,28 +67,17 @@ export async function joinLeague(inviteCode: string, serieId: number) {
 
   if (alreadyMember) return { error: 'Vous êtes déjà membre de cette ligue.' }
 
-  // Vérifier qu'il n'est pas dans une autre ligue sur cette série
-  const { data: otherLeague } = await supabase
-    .from('league_members')
-    .select('league_id, leagues!inner(serie_id)')
-    .eq('user_id', user.id)
-    .eq('leagues.serie_id', serieId)
-    .maybeSingle()
-
-  if (otherLeague) return { error: 'Vous êtes déjà dans une ligue pour cette compétition.' }
-
   const { error } = await supabase
     .from('league_members')
     .insert({ league_id: league.id, user_id: user.id })
 
-  if (error) return { error: 'Erreur lors de l\'adhésion.' }
+  if (error) return { error: "Erreur lors de l'adhésion." }
 
-  revalidatePath(`/series/${serieId}`)
   revalidatePath('/leagues')
-  return { success: true }
+  return { success: true, leagueId: league.id }
 }
 
-export async function leaveLeague(leagueId: string, serieId: number) {
+export async function leaveLeague(leagueId: string) {
   const parsed = leaveLeagueSchema.safeParse({ leagueId })
   if (!parsed.success) return { error: 'ID invalide.' }
 
@@ -143,7 +95,6 @@ export async function leaveLeague(leagueId: string, serieId: number) {
 
   if (error) return { error: 'Erreur lors de la sortie de la ligue.' }
 
-  revalidatePath(`/series/${serieId}`)
   revalidatePath('/leagues')
   return { success: true }
 }

@@ -2,7 +2,6 @@ import Image from 'next/image'
 import { Calendar, Gamepad2, Trophy, Gem } from 'lucide-react'
 import { TeamsModal, TeamSummary } from '@/components/teams-modal'
 import { SerieLeaderboardModal } from '@/components/serie-leaderboard-modal'
-import { LeagueSection } from '@/components/league-section'
 
 interface LeaderboardEntry {
   user_id: string
@@ -10,14 +9,6 @@ interface LeaderboardEntry {
   exact_predictions: number
   username: string | null
   avatar_url: string | null
-}
-
-interface LeagueMember {
-  user_id: string
-  username: string | null
-  avatar_url: string | null
-  correct_predictions: number
-  exact_predictions: number
 }
 
 interface SeriePageHeaderProps {
@@ -39,8 +30,6 @@ interface SeriePageHeaderProps {
   userCorrect: number
   userExact: number
   favoriteTeam: TeamSummary | null
-  userLeague: { id: string; name: string; invite_code: string; owner_id: string } | null
-  leagueMembers: LeagueMember[]
 }
 
 export function SeriePageHeader({
@@ -62,8 +51,6 @@ export function SeriePageHeader({
   userCorrect,
   userExact,
   favoriteTeam,
-  userLeague,
-  leagueMembers,
 }: SeriePageHeaderProps) {
   return (
     <section className="relative py-12 overflow-hidden">
@@ -156,14 +143,6 @@ export function SeriePageHeader({
                 currentUserRank={currentUserRank}
                 currentUserCorrect={userCorrect}
                 currentUserExact={userExact}
-              />
-              <LeagueSection
-                serieId={serieId}
-                isJoined={isJoined}
-                isLoggedIn={!!currentUserId}
-                currentUserId={currentUserId}
-                userLeague={userLeague}
-                leagueMembers={leagueMembers}
               />
             </div>
           </div>
