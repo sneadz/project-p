@@ -2,6 +2,21 @@
 -- Activation RLS + policies grind.gg
 -- ============================================================
 
+-- Suppression des anciennes policies {public} (anon) préexistantes
+DROP POLICY IF EXISTS "profiles_select_public"  ON public.profiles;
+DROP POLICY IF EXISTS "profiles_insert_own"     ON public.profiles;
+DROP POLICY IF EXISTS "profiles_update_own"     ON public.profiles;
+DROP POLICY IF EXISTS "bets_select_own"         ON public.bets;
+DROP POLICY IF EXISTS "bets_insert_own"         ON public.bets;
+DROP POLICY IF EXISTS "bets_update_own"         ON public.bets;
+DROP POLICY IF EXISTS "favorite_teams_select_own"  ON public.favorite_teams;
+DROP POLICY IF EXISTS "favorite_teams_insert_own"  ON public.favorite_teams;
+DROP POLICY IF EXISTS "favorite_teams_update_own"  ON public.favorite_teams;
+DROP POLICY IF EXISTS "Users manage their own global favorites" ON public.global_favorite_teams;
+DROP POLICY IF EXISTS "registrations_select_own" ON public.registrations;
+DROP POLICY IF EXISTS "registrations_insert_own" ON public.registrations;
+DROP POLICY IF EXISTS "Users manage their own serie stats" ON public.serie_stats;
+
 -- Helper SECURITY DEFINER pour éviter la récursion sur league_members
 CREATE OR REPLACE FUNCTION public.get_my_league_ids()
 RETURNS SETOF uuid
@@ -16,7 +31,8 @@ $$;
 -- ============================================================
 -- ENABLE RLS
 -- ============================================================
-ALTER TABLE public.profiles          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles              ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.serie_stats           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.registrations     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bets              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.favorite_teams    ENABLE ROW LEVEL SECURITY;
@@ -192,6 +208,30 @@ CREATE POLICY "leagues_delete"
   ON public.leagues FOR DELETE
   TO authenticated
   USING (auth.uid() = owner_id);
+
+-- ============================================================
+-- serie_stats
+-- ============================================================
+CREATE POLICY "serie_stats_select"
+  ON public.serie_stats FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "serie_stats_insert"
+  ON public.serie_stats FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "serie_stats_update"
+  ON public.serie_stats FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "serie_stats_delete"
+  ON public.serie_stats FOR DELETE
+  TO authenticated
+  USING (auth.uid() = user_id);
 
 -- ============================================================
 -- league_members
