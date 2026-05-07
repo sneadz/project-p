@@ -1,5 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <rect width="100" height="100" rx="0" fill="#0f0f1a"/>
-  <circle cx="50" cy="36" r="19" fill="#eab308" opacity="0.9"/>
-  <path d="M14 92 Q14 64 50 64 Q86 64 86 92" fill="#eab308" opacity="0.9"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" fill="#0d0d0d"/>
+  <!-- Mage/King — gold -->
+  <!-- Crown -->
+  <rect x="18" y="12" width="28" height="6" rx="1" fill="#1a1400" stroke="#eab308" stroke-width="1"/>
+  <!-- Crown points -->
+  <polygon points="18,12 21,4 24,12" fill="#eab308" opacity="0.9"/>
+  <polygon points="29,12 32,3 35,12" fill="#eab308" opacity="0.9"/>
+  <polygon points="40,12 43,4 46,12" fill="#eab308" opacity="0.9"/>
+  <!-- Crown gems -->
+  <circle cx="21" cy="8" r="1.5" fill="#fbbf24"/>
+  <circle cx="32" cy="5.5" r="2" fill="#fbbf24"/>
+  <circle cx="43" cy="8" r="1.5" fill="#fbbf24"/>
+  <!-- Face -->
+  <ellipse cx="32" cy="30" rx="14" ry="14" fill="#1a1400"/>
+  <ellipse cx="32" cy="30" rx="14" ry="14" stroke="#eab308" stroke-width="1.2" fill="none"/>
+  <!-- Eyes — regal, half-lidded -->
+  <ellipse cx="26" cy="28" rx="4" ry="3" fill="#eab308" opacity="0.9"/>
+  <ellipse cx="38" cy="28" rx="4" ry="3" fill="#eab308" opacity="0.9"/>
+  <!-- Eyelid -->
+  <path d="M22 27 Q26 25 30 27" stroke="#1a1400" stroke-width="1.5" fill="none"/>
+  <path d="M34 27 Q38 25 42 27" stroke="#1a1400" stroke-width="1.5" fill="none"/>
+  <!-- Iris -->
+  <circle cx="26" cy="28" r="2" fill="#fbbf24" opacity="0.6"/>
+  <circle cx="38" cy="28" r="2" fill="#fbbf24" opacity="0.6"/>
+  <!-- Beard -->
+  <path d="M20 36 Q22 44 32 46 Q42 44 44 36" fill="#eab308" opacity="0.2"/>
+  <path d="M20 36 Q22 44 32 46 Q42 44 44 36" stroke="#eab308" stroke-width="0.8" fill="none" opacity="0.7"/>
+  <!-- Nose -->
+  <path d="M31 32 L30 35 L34 35 L33 32" stroke="#eab308" stroke-width="0.7" fill="none" opacity="0.5"/>
+  <!-- Mustache -->
+  <path d="M26 35 Q29 33 32 34 Q35 33 38 35" stroke="#eab308" stroke-width="1" fill="none" opacity="0.6"/>
+  <!-- Neck -->
+  <rect x="27" y="44" width="10" height="6" rx="1" fill="#1a1400" stroke="#eab308" stroke-width="0.8" opacity="0.5"/>
 </svg>

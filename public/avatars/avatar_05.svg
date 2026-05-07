@@ -1,5 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <rect width="100" height="100" rx="0" fill="#0f0f1a"/>
-  <circle cx="50" cy="36" r="19" fill="#ef4444" opacity="0.9"/>
-  <path d="M14 92 Q14 64 50 64 Q86 64 86 92" fill="#ef4444" opacity="0.9"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" fill="#0d0d0d"/>
+  <!-- Demon/Warrior — red -->
+  <!-- Face -->
+  <ellipse cx="32" cy="28" rx="14" ry="16" fill="#1a0505"/>
+  <ellipse cx="32" cy="28" rx="14" ry="16" stroke="#ef4444" stroke-width="1.2" fill="none"/>
+  <!-- Horns -->
+  <path d="M22 14 L18 4 L24 10 Z" fill="#ef4444" opacity="0.85"/>
+  <path d="M42 14 L46 4 L40 10 Z" fill="#ef4444" opacity="0.85"/>
+  <path d="M22 14 L18 4 L24 10 Z" stroke="#ef4444" stroke-width="0.8" fill="none"/>
+  <path d="M42 14 L46 4 L40 10 Z" stroke="#ef4444" stroke-width="0.8" fill="none"/>
+  <!-- Brow ridge — angular -->
+  <path d="M19 22 L26 26 L32 24 L38 26 L45 22" stroke="#ef4444" stroke-width="1.2" fill="none"/>
+  <!-- Eyes — slitted -->
+  <ellipse cx="26" cy="28" rx="4" ry="3" fill="#ef4444" opacity="0.9"/>
+  <ellipse cx="38" cy="28" rx="4" ry="3" fill="#ef4444" opacity="0.9"/>
+  <!-- Vertical slit pupils -->
+  <ellipse cx="26" cy="28" rx="1" ry="2.5" fill="#fff" opacity="0.2"/>
+  <ellipse cx="38" cy="28" rx="1" ry="2.5" fill="#fff" opacity="0.2"/>
+  <!-- Nose -->
+  <path d="M30 32 L28 36 L36 36 L34 32" stroke="#ef4444" stroke-width="0.8" fill="none" opacity="0.5"/>
+  <!-- Snarl mouth -->
+  <path d="M24 38 L28 36 L32 38 L36 36 L40 38" stroke="#ef4444" stroke-width="1" fill="none"/>
+  <!-- Teeth -->
+  <rect x="28" y="36" width="3" height="3" rx="0.5" fill="#fff" opacity="0.4"/>
+  <rect x="33" y="36" width="3" height="3" rx="0.5" fill="#fff" opacity="0.4"/>
+  <!-- Neck -->
+  <rect x="27" y="44" width="10" height="6" rx="1" fill="#1a0505" stroke="#ef4444" stroke-width="0.8" opacity="0.5"/>
 </svg>
