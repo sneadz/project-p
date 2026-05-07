@@ -45,7 +45,7 @@ export function LeagueActions({ leagueId, inviteCode, isOwner, leagueName }: Lea
     startTransition(async () => {
       const result = await (isOwner ? dissolveLeague(leagueId) : leaveLeague(leagueId))
       if ('error' in result) {
-        setActionError(result.error)
+        setActionError(result.error ?? null)
         return
       }
       router.push('/leagues')

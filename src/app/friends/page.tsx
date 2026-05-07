@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 interface FriendsPageProps {
-  searchParams: { q?: string }
+  searchParams: Promise<{ q?: string }>
 }
 
 export default async function FriendsPage({ searchParams }: FriendsPageProps) {
@@ -22,7 +22,8 @@ export default async function FriendsPage({ searchParams }: FriendsPageProps) {
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const query = searchParams.q?.trim() ?? ''
+  const { q } = await searchParams
+  const query = q?.trim() ?? ''
 
   // Toutes mes relations (pour connaître le statut dans les résultats de recherche)
   const { data: myFriendships } = await supabase

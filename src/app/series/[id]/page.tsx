@@ -16,13 +16,12 @@ import { NoMatches } from '@/components/no-matches'
 import { SeriePageHeader } from '@/components/serie-page-header'
 
 interface SeriePageProps {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default async function SeriePage({ params }: SeriePageProps) {
-  const serieId = parseInt(params.id)
+  const { id } = await params
+  const serieId = parseInt(id)
 
   if (isNaN(serieId)) {
     notFound()

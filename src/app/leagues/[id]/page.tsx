@@ -6,10 +6,11 @@ import { getAvatarSrc } from '@/lib/avatars'
 import { LeagueActions } from '@/components/league-actions'
 
 interface LeaguePageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function LeaguePage({ params }: LeaguePageProps) {
+  const { id } = await params
   const supabase = await createClient()
   const {
     data: { user },
@@ -20,7 +21,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
   const { data: membership } = await supabase
     .from('league_members')
     .select('league_id, leagues!inner(id, name, invite_code, owner_id)')
-    .eq('league_id', params.id)
+    .eq('league_id', id)
     .eq('user_id', user.id)
     .maybeSingle()
 

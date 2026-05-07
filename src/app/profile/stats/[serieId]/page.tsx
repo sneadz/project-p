@@ -8,13 +8,12 @@ import Link from 'next/link'
 import { ChevronLeft, Gem, Target, Crosshair, X } from 'lucide-react'
 
 interface SerieStatsPageProps {
-  params: {
-    serieId: string
-  }
+  params: Promise<{ serieId: string }>
 }
 
 export default async function SerieStatsPage({ params }: SerieStatsPageProps) {
-  const serieId = parseInt(params.serieId)
+  const { serieId: serieIdParam } = await params
+  const serieId = parseInt(serieIdParam)
   if (isNaN(serieId)) notFound()
 
   const supabase = await createClient()
