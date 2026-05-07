@@ -87,6 +87,14 @@ export async function leaveLeague(leagueId: string) {
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Vous devez être connecté.' }
 
+  const { data: league } = await supabase
+    .from('leagues')
+    .select('owner_id')
+    .eq('id', leagueId)
+    .single()
+
+  if (league?.owner_id === user.id) return { error: 'Le propriétaire ne peut pas quitter la ligue, il doit la dissoudre.' }
+
   const { error } = await supabase
     .from('league_members')
     .delete()
@@ -94,6 +102,32 @@ export async function leaveLeague(leagueId: string) {
     .eq('user_id', user.id)
 
   if (error) return { error: 'Erreur lors de la sortie de la ligue.' }
+
+  revalidatePath('/leagues')
+  return { success: true }
+}
+
+export async function dissolveLeague(leagueId: string) {
+  const parsed = leaveLeagueSchema.safeParse({ leagueId })
+  if (!parsed.success) return { error: 'ID invalide.' }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Vous devez être connecté.' }
+
+  const { data: league } = await supabase
+    .from('leagues')
+    .select('owner_id')
+    .eq('id', leagueId)
+    .single()
+
+  if (!league || league.owner_id !== user.id) return { error: 'Vous n\'êtes pas le propriétaire de cette ligue.' }
+
+  const { error } = await supabase.from('leagues').delete().eq('id', leagueId)
+
+  if (error) return { error: 'Erreur lors de la dissolution de la ligue.' }
 
   revalidatePath('/leagues')
   return { success: true }

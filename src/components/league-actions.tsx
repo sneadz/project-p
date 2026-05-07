@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Copy, Check, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { leaveLeague } from '@/app/actions/leagues'
+import { leaveLeague, dissolveLeague } from '@/app/actions/leagues'
 
 interface LeagueActionsProps {
   leagueId: string
@@ -23,17 +23,31 @@ export function LeagueActions({ leagueId, inviteCode, isOwner, leagueName }: Lea
   const [copied, setCopied] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [actionError, setActionError] = useState<string | null>(null)
   const router = useRouter()
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+    }
+  }, [])
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteCode)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+    copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
   }
 
   const handleConfirm = () => {
+    setActionError(null)
     startTransition(async () => {
-      await leaveLeague(leagueId)
+      const result = await (isOwner ? dissolveLeague(leagueId) : leaveLeague(leagueId))
+      if ('error' in result) {
+        setActionError(result.error)
+        return
+      }
       router.push('/leagues')
     })
   }
@@ -56,6 +70,7 @@ export function LeagueActions({ leagueId, inviteCode, isOwner, leagueName }: Lea
             variant="ghost"
             size="sm"
             onClick={() => setConfirmOpen(true)}
+            disabled={isPending}
             className="text-muted-foreground hover:text-destructive"
           >
             {isOwner ? 'Dissoudre' : 'Quitter'}
@@ -63,7 +78,7 @@ export function LeagueActions({ leagueId, inviteCode, isOwner, leagueName }: Lea
         </div>
       </div>
 
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <Dialog open={confirmOpen} onOpenChange={(open) => { if (!isPending) { setConfirmOpen(open); if (open) setActionError(null); } }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
@@ -78,8 +93,11 @@ export function LeagueActions({ leagueId, inviteCode, isOwner, leagueName }: Lea
                 : <>Vous quitterez la ligue <span className="font-bold text-foreground">{leagueName}</span>. Vous pourrez la rejoindre à nouveau avec le code d&apos;invitation.</>
               }
             </p>
+            {actionError && (
+              <p className="text-sm text-destructive">{actionError}</p>
+            )}
             <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => setConfirmOpen(false)}>
+              <Button variant="outline" size="sm" onClick={() => setConfirmOpen(false)} disabled={isPending}>
                 Annuler
               </Button>
               <Button
