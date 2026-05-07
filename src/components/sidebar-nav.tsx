@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Trophy, BarChart2, Medal, Users, Shield } from 'lucide-react'
+import { Trophy, BarChart2, Medal, Users, Shield, Store } from 'lucide-react'
 
 const navItems = [
   { href: '/', label: 'Compétitions', icon: Trophy },
@@ -10,6 +10,7 @@ const navItems = [
   { href: '/leaderboard', label: 'Classement', icon: Medal },
   { href: '/friends', label: 'Amis', icon: Users },
   { href: '/leagues', label: 'Ligues', icon: Shield },
+  { href: '/shop', label: 'Boutique', icon: Store },
 ]
 
 export function SidebarNav() {
