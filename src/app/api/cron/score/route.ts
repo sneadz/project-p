@@ -99,6 +99,7 @@ export async function GET(req: NextRequest) {
               correct_predictions: stats.correct,
               exact_predictions: stats.exact,
               total_shards: stats.correct + stats.exact,
+              shards_earned: stats.correct + stats.exact,
             })
             .eq('id', userId)
         )
