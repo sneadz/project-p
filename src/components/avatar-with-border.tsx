@@ -9,11 +9,11 @@ interface AvatarWithBorderProps {
   className?: string
 }
 
-const SIZE_CLASSES = {
-  sm: 'h-8 w-8 rounded-lg',
-  md: 'h-12 w-12 rounded-xl',
-  lg: 'h-20 w-20 rounded-2xl',
-  xl: 'h-24 w-24 rounded-2xl',
+const SIZE_CLASSES: Record<string, { outer: string; inner: string }> = {
+  sm: { outer: 'h-8 w-8 rounded-lg', inner: 'rounded-lg' },
+  md: { outer: 'h-12 w-12 rounded-xl', inner: 'rounded-xl' },
+  lg: { outer: 'h-20 w-20 rounded-2xl', inner: 'rounded-2xl' },
+  xl: { outer: 'h-24 w-24 rounded-2xl', inner: 'rounded-2xl' },
 }
 
 export function AvatarWithBorder({
@@ -25,19 +25,23 @@ export function AvatarWithBorder({
 }: AvatarWithBorderProps) {
   const avatarSrc = getAvatarSrc(avatarId)
   const { className: borderClass, style: borderStyle } = getBorderClasses(borderId)
-  const sizeClass = SIZE_CLASSES[size]
+  const { outer, inner } = SIZE_CLASSES[size]
 
   return (
+    // Outer div handles border + gradient trick — no overflow-hidden so gradient border isn't clipped
     <div
-      className={`${sizeClass} overflow-hidden border-2 bg-card flex items-center justify-center shrink-0 ${borderClass} ${className}`}
+      className={`${outer} relative border-2 shrink-0 ${borderClass} ${className}`}
       style={borderStyle}
     >
-      {avatarSrc ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={avatarSrc} alt={alt} className="h-full w-full object-cover" />
-      ) : (
-        <span className="text-muted-foreground text-lg">?</span>
-      )}
+      {/* Inner div handles overflow-hidden to clip avatar to border-radius */}
+      <div className={`absolute inset-0 overflow-hidden ${inner} bg-card flex items-center justify-center`}>
+        {avatarSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={avatarSrc} alt={alt} className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-muted-foreground text-lg">?</span>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
-import { getAvatarSrc } from '@/lib/avatars'
+import { AvatarWithBorder } from '@/components/avatar-with-border'
 import { SidebarNav } from '@/components/sidebar-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { User, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function Sidebar() {
@@ -16,7 +16,7 @@ export default async function Sidebar() {
     if (user) {
       const { data: p } = await supabase
         .from('profiles')
-        .select('username, avatar_url')
+        .select('username, avatar_url, active_border')
         .eq('id', user.id)
         .single()
       profile = p
@@ -24,7 +24,6 @@ export default async function Sidebar() {
   } catch {}
 
   const displayName = profile?.username || user?.email?.split('@')[0] || 'Invité'
-  const avatarSrc = getAvatarSrc(profile?.avatar_url)
 
   return (
     <aside className="flex flex-col w-64 h-full rounded-2xl bg-card backdrop-blur-sm shrink-0 overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
@@ -55,14 +54,12 @@ export default async function Sidebar() {
         href="/profile"
         className="group flex flex-col items-center gap-3 px-4 py-5 border-b border-border/50 hover:bg-muted/10 transition-colors"
       >
-        <div className="w-4/5 aspect-square rounded-2xl overflow-hidden border-2 border-primary/30 group-hover:border-primary/60 transition-colors bg-background flex items-center justify-center shrink-0">
-          {avatarSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarSrc} alt="Avatar" className="h-full w-full object-cover" />
-          ) : (
-            <User className="h-12 w-12 text-muted-foreground" />
-          )}
-        </div>
+        <AvatarWithBorder
+          avatarId={profile?.avatar_url ?? null}
+          borderId={profile?.active_border ?? null}
+          size="xl"
+          alt="Avatar"
+        />
         <p className="text-sm font-bold truncate">{displayName}</p>
       </Link>
 
@@ -82,7 +79,6 @@ export default async function Sidebar() {
         )}
       </div>
 
-      {/* Sign out */}
       {/* Theme toggle + Sign out */}
       <div className="px-3 py-4 border-t border-border/50 space-y-1">
         <ThemeToggle />

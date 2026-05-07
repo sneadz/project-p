@@ -80,7 +80,7 @@ export default async function ShopPage() {
                 >
                   <AvatarWithBorder
                     avatarId={profile?.avatar_url ?? null}
-                    borderId={isUnlocked ? border.id : null}
+                    borderId={border.id}
                     size="md"
                   />
                   <div className="text-center space-y-0.5">
