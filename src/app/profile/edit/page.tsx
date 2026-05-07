@@ -13,16 +13,20 @@ export default async function ProfileEditPage() {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username, avatar_url, hide_cs2, hide_valorant')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, { data: userItems }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('username, avatar_url, hide_cs2, hide_valorant, active_border, correct_predictions')
+      .eq('id', user.id)
+      .single(),
+    supabase.from('user_items').select('item_id').eq('user_id', user.id),
+  ])
+
+  const ownedItemIds = (userItems ?? []).map((i: { item_id: string }) => i.item_id)
 
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="container mx-auto max-w-md px-4 py-16">
-        {/* Header */}
         <div className="mb-10 space-y-4">
           <Link href="/profile">
             <Button
@@ -46,6 +50,9 @@ export default async function ProfileEditPage() {
           initialAvatarUrl={profile?.avatar_url ?? null}
           initialHideCs2={profile?.hide_cs2 ?? false}
           initialHideValorant={profile?.hide_valorant ?? false}
+          initialActiveBorder={profile?.active_border ?? null}
+          correctPredictions={profile?.correct_predictions ?? 0}
+          ownedItemIds={ownedItemIds}
         />
       </section>
     </main>

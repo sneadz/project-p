@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Check, EyeOff } from 'lucide-react'
+import { Loader2, Check, EyeOff, Lock } from 'lucide-react'
 import { AVATARS, getAvatarSrc } from '@/lib/avatars'
+import { BorderSelector } from '@/components/border-selector'
 
 interface ProfileFormProps {
   userId: string
@@ -16,9 +17,21 @@ interface ProfileFormProps {
   initialAvatarUrl: string | null
   initialHideCs2?: boolean
   initialHideValorant?: boolean
+  initialActiveBorder: string | null
+  correctPredictions: number
+  ownedItemIds: string[]
 }
 
-export function ProfileForm({ userId, initialUsername, initialAvatarUrl, initialHideCs2 = false, initialHideValorant = false }: ProfileFormProps) {
+export function ProfileForm({
+  userId,
+  initialUsername,
+  initialAvatarUrl,
+  initialHideCs2 = false,
+  initialHideValorant = false,
+  initialActiveBorder,
+  correctPredictions,
+  ownedItemIds,
+}: ProfileFormProps) {
   const [username, setUsername] = useState(initialUsername || '')
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(initialAvatarUrl)
   const [hideCs2, setHideCs2] = useState(initialHideCs2)
@@ -30,7 +43,6 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl, initial
 
   const handleSave = async () => {
     setLoading(true)
-
     const updates: Record<string, string | null | boolean> = {
       updated_at: new Date().toISOString(),
       avatar_url: selectedAvatar,
@@ -38,9 +50,7 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl, initial
       hide_valorant: hideValorant,
     }
     if (username.trim()) updates.username = username.trim()
-
     const { error } = await supabase.from('profiles').upsert({ id: userId, ...updates })
-
     if (error) {
       toast({ title: 'Erreur', description: error.message, variant: 'destructive' })
     } else {
@@ -77,23 +87,33 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl, initial
         <div className="grid grid-cols-4 gap-3">
           {AVATARS.map((avatar) => {
             const isSelected = selectedAvatar === avatar.id
+            const isPremium = avatar.premium === true
+            const isUnlocked = !isPremium || ownedItemIds.includes(avatar.id)
             return (
               <button
                 key={avatar.id}
-                onClick={() => setSelectedAvatar(avatar.id)}
+                onClick={() => isUnlocked && setSelectedAvatar(avatar.id)}
+                disabled={!isUnlocked}
                 className={`relative h-16 w-16 mx-auto rounded-xl overflow-hidden border-2 transition-all duration-150
                   ${
-                    isSelected
-                      ? 'border-primary scale-110 shadow-[0_0_10px_2px] shadow-primary/40'
-                      : 'border-border hover:border-primary/50 hover:scale-105'
+                    isUnlocked
+                      ? isSelected
+                        ? 'border-primary scale-110 shadow-[0_0_10px_2px] shadow-primary/40'
+                        : 'border-border hover:border-primary/50 hover:scale-105'
+                      : 'border-border/30 opacity-40 cursor-not-allowed'
                   }`}
                 title={avatar.label}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={avatar.src} alt={avatar.label} className="h-full w-full object-cover" />
-                {isSelected && (
+                {isSelected && isUnlocked && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                     <Check className="h-4 w-4 text-white drop-shadow" />
+                  </div>
+                )}
+                {!isUnlocked && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <Lock className="h-3 w-3 text-white/60" />
                   </div>
                 )}
               </button>
@@ -101,8 +121,19 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl, initial
           })}
         </div>
         <p className="text-xs text-muted-foreground">
-          D&apos;autres avatars seront disponibles prochainement.
+          Les avatars verrouillés sont disponibles en boutique.
         </p>
+      </div>
+
+      {/* Bordures */}
+      <div className="space-y-3">
+        <Label>Bordure</Label>
+        <BorderSelector
+          correctPredictions={correctPredictions}
+          ownedBorderIds={ownedItemIds.filter((id) => id.startsWith('border_'))}
+          activeBorderId={initialActiveBorder}
+          avatarId={selectedAvatar}
+        />
       </div>
 
       {/* Username */}
@@ -143,7 +174,11 @@ export function ProfileForm({ userId, initialUsername, initialAvatarUrl, initial
               }`}
             >
               <span>{label}</span>
-              <span className={`text-[10px] font-black uppercase tracking-widest ${value ? 'text-muted-foreground' : 'text-green-500'}`}>
+              <span
+                className={`text-[10px] font-black uppercase tracking-widest ${
+                  value ? 'text-muted-foreground' : 'text-green-500'
+                }`}
+              >
                 {value ? 'Masqué' : 'Affiché'}
               </span>
             </button>
