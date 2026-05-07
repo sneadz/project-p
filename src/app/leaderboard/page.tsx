@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getAvatarSrc } from '@/lib/avatars'
+import Link from 'next/link'
 import { User, Target, Crosshair } from 'lucide-react'
 
 export const revalidate = 60
@@ -100,12 +101,8 @@ export default async function LeaderboardPage() {
           const avatarSrc = getAvatarSrc(player.avatar_url)
           const displayName = player.username || 'Joueur inconnu'
 
-          return (
-            <div
-              key={player.id}
-              className={`flex items-center gap-4 rounded-xl border transition-colors
-                ${style ? style.card : 'bg-card/50 border-border/40 px-4 py-3'}`}
-            >
+          const rowContent = (
+            <>
               {/* Rank */}
               <div className="w-8 text-center shrink-0">
                 {medal ? (
@@ -151,6 +148,25 @@ export default async function LeaderboardPage() {
                   </span>
                 </div>
               </div>
+            </>
+          )
+
+          return player.username ? (
+            <Link
+              key={player.id}
+              href={`/u/${player.username}`}
+              className={`flex items-center gap-4 rounded-xl border transition-colors hover:border-primary/40
+                ${style ? style.card : 'bg-card/50 border-border/40 px-4 py-3'}`}
+            >
+              {rowContent}
+            </Link>
+          ) : (
+            <div
+              key={player.id}
+              className={`flex items-center gap-4 rounded-xl border transition-colors
+                ${style ? style.card : 'bg-card/50 border-border/40 px-4 py-3'}`}
+            >
+              {rowContent}
             </div>
           )
         })}
@@ -170,7 +186,10 @@ export default async function LeaderboardPage() {
               <span className="text-xs font-bold text-muted-foreground tracking-widest">• • •</span>
               <div className="h-px flex-1 bg-border/40" />
             </div>
-            <div className="flex items-center gap-4 rounded-xl border bg-primary/5 border-primary/30 px-4 py-3">
+            <Link
+              href={currentPlayer.username ? `/u/${currentPlayer.username}` : '#'}
+              className="flex items-center gap-4 rounded-xl border bg-primary/5 border-primary/30 px-4 py-3 hover:border-primary/60 transition-colors"
+            >
               <div className="w-8 text-center shrink-0">
                 <span className="text-sm font-bold text-primary">#{currentRank}</span>
               </div>
@@ -206,7 +225,7 @@ export default async function LeaderboardPage() {
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           </>
         )}
       </div>
