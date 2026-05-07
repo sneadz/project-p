@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { User, UserPlus, Check, X, Users } from 'lucide-react'
 import { getAvatarSrc } from '@/lib/avatars'
 import {
@@ -117,23 +118,33 @@ export default async function FriendsPage({ searchParams }: FriendsPageProps) {
                     key={result.id}
                     className="rounded-lg border border-border bg-card p-3 flex items-center justify-between gap-3"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-9 w-9 rounded-lg overflow-hidden border border-primary/20 bg-muted flex items-center justify-center shrink-0">
-                        {getAvatarSrc(result.avatar_url) ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={getAvatarSrc(result.avatar_url)!}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
+                    {result.username ? (
+                      <Link
+                        href={`/u/${result.username}`}
+                        className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity"
+                      >
+                        <div className="h-9 w-9 rounded-lg overflow-hidden border border-primary/20 bg-muted flex items-center justify-center shrink-0">
+                          {getAvatarSrc(result.avatar_url) ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={getAvatarSrc(result.avatar_url)!}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <User className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </div>
+                        <span className="text-sm font-bold truncate">{result.username}</span>
+                      </Link>
+                    ) : (
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-9 w-9 rounded-lg overflow-hidden border border-primary/20 bg-muted flex items-center justify-center shrink-0">
                           <User className="h-4 w-4 text-muted-foreground" />
-                        )}
+                        </div>
+                        <span className="text-sm font-bold truncate">Anonyme</span>
                       </div>
-                      <span className="text-sm font-bold truncate">
-                        {result.username ?? 'Anonyme'}
-                      </span>
-                    </div>
+                    )}
                     <div className="shrink-0">
                       {!rel ? (
                         <form
@@ -259,23 +270,33 @@ export default async function FriendsPage({ searchParams }: FriendsPageProps) {
                   key={friendshipId}
                   className="rounded-lg border border-border bg-card p-3 flex items-center justify-between gap-3"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-9 w-9 rounded-lg overflow-hidden border border-primary/20 bg-muted flex items-center justify-center shrink-0">
-                      {friend && getAvatarSrc(friend.avatar_url) ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={getAvatarSrc(friend!.avatar_url)!}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
+                  {friend?.username ? (
+                    <Link
+                      href={`/u/${friend.username}`}
+                      className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity"
+                    >
+                      <div className="h-9 w-9 rounded-lg overflow-hidden border border-primary/20 bg-muted flex items-center justify-center shrink-0">
+                        {getAvatarSrc(friend.avatar_url) ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={getAvatarSrc(friend.avatar_url)!}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <span className="text-sm font-bold truncate">{friend.username}</span>
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-lg overflow-hidden border border-primary/20 bg-muted flex items-center justify-center shrink-0">
                         <User className="h-4 w-4 text-muted-foreground" />
-                      )}
+                      </div>
+                      <span className="text-sm font-bold truncate">Anonyme</span>
                     </div>
-                    <span className="text-sm font-bold truncate">
-                      {friend?.username ?? 'Anonyme'}
-                    </span>
-                  </div>
+                  )}
                   <form
                     action={async () => {
                       'use server'
