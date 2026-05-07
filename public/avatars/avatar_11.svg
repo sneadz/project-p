@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" fill="#0d0d0d"/>
+  <!-- head -->
+  <ellipse cx="32" cy="28" rx="18" ry="20" fill="#0a1a0a"/>
+  <ellipse cx="32" cy="28" rx="18" ry="20" stroke="#22c55e" stroke-width="1.2" fill="none"/>
+  <!-- large eyes -->
+  <ellipse cx="24" cy="24" rx="7" ry="5" fill="#000" stroke="#22c55e" stroke-width="1"/>
+  <ellipse cx="40" cy="24" rx="7" ry="5" fill="#000" stroke="#22c55e" stroke-width="1"/>
+  <!-- vertical slit pupils -->
+  <ellipse cx="24" cy="24" rx="2" ry="4" fill="#22c55e" opacity="0.9"/>
+  <ellipse cx="40" cy="24" rx="2" ry="4" fill="#22c55e" opacity="0.9"/>
+  <!-- inner glow -->
+  <ellipse cx="24" cy="24" rx="1" ry="2" fill="#86efac"/>
+  <ellipse cx="40" cy="24" rx="1" ry="2" fill="#86efac"/>
+  <!-- nose slits -->
+  <ellipse cx="30" cy="33" rx="1" ry="1.5" fill="#22c55e" opacity="0.5"/>
+  <ellipse cx="34" cy="33" rx="1" ry="1.5" fill="#22c55e" opacity="0.5"/>
+  <!-- thin mouth -->
+  <path d="M26 38 Q32 36 38 38" stroke="#22c55e" stroke-width="1" fill="none" opacity="0.7"/>
+  <!-- neck -->
+  <rect x="29" y="48" width="6" height="6" fill="#22c55e" opacity="0.2" rx="1"/>
+  <!-- antennae -->
+  <line x1="24" y1="9" x2="18" y2="2" stroke="#22c55e" stroke-width="1" opacity="0.7"/>
+  <circle cx="18" cy="2" r="1.5" fill="#22c55e"/>
+  <line x1="40" y1="9" x2="46" y2="2" stroke="#22c55e" stroke-width="1" opacity="0.7"/>
+  <circle cx="46" cy="2" r="1.5" fill="#22c55e"/>
+</svg>
