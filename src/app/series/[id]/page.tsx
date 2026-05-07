@@ -93,7 +93,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
   }
 
   // Leaderboard data
-  let leaderboardEntries: { user_id: string; correct_predictions: number; exact_predictions: number; username: string | null; avatar_url: string | null }[] = []
+  let leaderboardEntries: { user_id: string; correct_predictions: number; exact_predictions: number; username: string | null; avatar_url: string | null; active_border: string | null }[] = []
   let currentUserRank: number | null = null
 
   if (matches.length > 0) {
@@ -110,7 +110,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
       const uids = regs.map((r) => r.user_id)
       const { data: profiles } = await supabaseForLeader
         .from('profiles')
-        .select('id, username, avatar_url')
+        .select('id, username, avatar_url, active_border')
         .in('id', uids)
       const pMap = new Map((profiles ?? []).map((p) => [p.id, p]))
       leaderboardEntries = regs.map((r) => ({
@@ -119,6 +119,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
         exact_predictions: r.exact_predictions ?? 0,
         username: pMap.get(r.user_id)?.username ?? null,
         avatar_url: pMap.get(r.user_id)?.avatar_url ?? null,
+        active_border: pMap.get(r.user_id)?.active_border ?? null,
       }))
     }
 

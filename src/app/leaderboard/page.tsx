@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
-import { getAvatarSrc } from '@/lib/avatars'
 import Link from 'next/link'
-import { User, Target, Crosshair } from 'lucide-react'
+import { Target, Crosshair } from 'lucide-react'
+import { AvatarWithBorder } from '@/components/avatar-with-border'
 
 export const revalidate = 60
 
@@ -9,6 +9,7 @@ interface LeaderboardEntry {
   id: string
   username: string | null
   avatar_url: string | null
+  active_border: string | null
   total_shards: number
   correct_predictions: number
   exact_predictions: number
@@ -22,25 +23,25 @@ const MEDAL: Record<number, { emoji: string }> = {
 
 const RANK_STYLE: Record<
   number,
-  { card: string; avatar: string; name: string; shards: string; emoji: string }
+  { card: string; avatarSize: 'sm' | 'md' | 'lg'; name: string; shards: string; emoji: string }
 > = {
   1: {
     card: 'bg-card border-yellow-400/30 shadow-[0_0_20px_0px] shadow-yellow-400/10 px-6 py-5 -mx-8',
-    avatar: 'h-14 w-14 border-yellow-400/50',
+    avatarSize: 'lg',
     name: 'text-lg font-black',
     shards: 'text-base',
     emoji: 'text-3xl',
   },
   2: {
     card: 'bg-card border-slate-400/20 shadow-sm px-5 py-4 -mx-5',
-    avatar: 'h-12 w-12 border-slate-400/30',
+    avatarSize: 'md',
     name: 'text-base font-black',
     shards: 'text-sm',
     emoji: 'text-2xl',
   },
   3: {
     card: 'bg-card border-amber-600/20 shadow-sm px-5 py-3.5 -mx-2',
-    avatar: 'h-11 w-11 border-amber-600/20',
+    avatarSize: 'md',
     name: 'text-sm font-black',
     shards: 'text-sm',
     emoji: 'text-xl',
@@ -52,7 +53,7 @@ export default async function LeaderboardPage() {
 
   const { data: players } = (await supabase
     .from('profiles')
-    .select('id, username, avatar_url, total_shards, correct_predictions, exact_predictions')
+    .select('id, username, avatar_url, active_border, total_shards, correct_predictions, exact_predictions')
     .order('correct_predictions', { ascending: false })
     .order('exact_predictions', { ascending: false })
     .limit(20)) as { data: LeaderboardEntry[] | null }
@@ -69,7 +70,7 @@ export default async function LeaderboardPage() {
   if (user) {
     const { data: profile } = (await supabase
       .from('profiles')
-      .select('id, username, avatar_url, total_shards, correct_predictions, exact_predictions')
+      .select('id, username, avatar_url, active_border, total_shards, correct_predictions, exact_predictions')
       .eq('id', user.id)
       .single()) as { data: LeaderboardEntry | null }
 
@@ -98,7 +99,6 @@ export default async function LeaderboardPage() {
           const rank = index + 1
           const medal = MEDAL[rank]
           const style = RANK_STYLE[rank]
-          const avatarSrc = getAvatarSrc(player.avatar_url)
           const displayName = player.username || 'Joueur inconnu'
 
           const rowContent = (
@@ -113,16 +113,12 @@ export default async function LeaderboardPage() {
               </div>
 
               {/* Avatar */}
-              <div
-                className={`rounded-xl overflow-hidden border-2 bg-background flex items-center justify-center shrink-0 ${style?.avatar ?? 'h-10 w-10 border-primary/20'}`}
-              >
-                {avatarSrc ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarSrc} alt={displayName} className="h-full w-full object-cover" />
-                ) : (
-                  <User className="h-4 w-4 text-muted-foreground" />
-                )}
-              </div>
+              <AvatarWithBorder
+                avatarId={player.avatar_url}
+                borderId={player.active_border}
+                size={style?.avatarSize ?? 'sm'}
+                alt={displayName}
+              />
 
               {/* Pseudo */}
               <div className="flex-1 min-w-0">
@@ -193,18 +189,12 @@ export default async function LeaderboardPage() {
               <div className="w-8 text-center shrink-0">
                 <span className="text-sm font-bold text-primary">#{currentRank}</span>
               </div>
-              <div className="h-10 w-10 rounded-xl overflow-hidden border-2 border-primary/30 bg-background flex items-center justify-center shrink-0">
-                {getAvatarSrc(currentPlayer.avatar_url) ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={getAvatarSrc(currentPlayer.avatar_url)!}
-                    alt="Vous"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <User className="h-4 w-4 text-primary" />
-                )}
-              </div>
+              <AvatarWithBorder
+                avatarId={currentPlayer.avatar_url}
+                borderId={currentPlayer.active_border}
+                size="sm"
+                alt="Vous"
+              />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold truncate text-primary">
                   {currentPlayer.username || 'Vous'}{' '}

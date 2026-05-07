@@ -9,6 +9,7 @@ interface LeaderboardEntry {
   exact_predictions: number
   username: string | null
   avatar_url: string | null
+  active_border: string | null
 }
 
 interface SeriePageHeaderProps {

@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Trophy, Target, Crosshair, User, RefreshCw } from 'lucide-react'
-import { getAvatarSrc } from '@/lib/avatars'
+import { Trophy, Target, Crosshair, RefreshCw } from 'lucide-react'
+import { AvatarWithBorder } from '@/components/avatar-with-border'
 import { refreshSerieStats } from '@/app/actions/favorites'
 
 interface LeaderboardEntry {
@@ -15,6 +15,7 @@ interface LeaderboardEntry {
   exact_predictions: number
   username: string | null
   avatar_url: string | null
+  active_border: string | null
 }
 
 interface SerieLeaderboardModalProps {
@@ -124,7 +125,6 @@ export function SerieLeaderboardModal({
               {liveEntries.map((entry, index) => {
                 const rank = index + 1
                 const medal = MEDALS[rank]
-                const avatarSrc = getAvatarSrc(entry.avatar_url)
                 const isMe = entry.user_id === currentUserId
 
                 return (
@@ -141,14 +141,11 @@ export function SerieLeaderboardModal({
                         <span className="text-sm font-bold text-muted-foreground">#{rank}</span>
                       )}
                     </div>
-                    <div className="h-8 w-8 rounded-lg overflow-hidden border border-border/40 bg-card flex items-center justify-center shrink-0">
-                      {avatarSrc ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <User className="h-3.5 w-3.5 text-muted-foreground" />
-                      )}
-                    </div>
+                    <AvatarWithBorder
+                      avatarId={entry.avatar_url}
+                      borderId={entry.active_border}
+                      size="sm"
+                    />
                     {entry.username ? (
                       <Link
                         href={`/u/${entry.username}`}

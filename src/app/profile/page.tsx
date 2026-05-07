@@ -2,8 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Pencil, User, Gem, Trophy, Target, Crosshair } from 'lucide-react'
-import { getAvatarSrc } from '@/lib/avatars'
+import { Pencil, Gem, Trophy, Target, Crosshair } from 'lucide-react'
+import { AvatarWithBorder } from '@/components/avatar-with-border'
 import { getMatchesBySerie } from '@/lib/pandascore'
 import { calculateMatchShards, getRealScore } from '@/lib/scoring'
 
@@ -17,12 +17,11 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, avatar_url')
+    .select('username, avatar_url, active_border')
     .eq('id', user.id)
     .single()
 
   const displayName = profile?.username || user.email
-  const avatarSrc = getAvatarSrc(profile?.avatar_url)
 
   // Fetch all bets
   const { data: allBets } = await supabase
@@ -180,14 +179,12 @@ export default async function ProfilePage() {
         {/* Header profil */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
-            <div className="h-20 w-20 rounded-xl overflow-hidden border-2 border-primary/40 bg-card flex items-center justify-center shrink-0">
-              {avatarSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarSrc} alt="Avatar" className="h-full w-full object-cover" />
-              ) : (
-                <User className="h-8 w-8 text-muted-foreground" />
-              )}
-            </div>
+            <AvatarWithBorder
+              avatarId={profile?.avatar_url ?? null}
+              borderId={profile?.active_border ?? null}
+              size="lg"
+              alt="Avatar"
+            />
             <div>
               <h1 className="text-2xl font-black uppercase tracking-tighter">{displayName}</h1>
               {profile?.username && <p className="text-sm text-muted-foreground">{user.email}</p>}

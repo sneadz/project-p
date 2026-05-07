@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { getAvatarSrc } from '@/lib/avatars'
+import { AvatarWithBorder } from '@/components/avatar-with-border'
 import {
-  User, Target, Crosshair, Gem, Trophy, UserPlus, UserCheck, Clock, Check,
+  Target, Crosshair, Gem, Trophy, UserPlus, UserCheck, Clock, Check,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,7 +22,7 @@ export default async function PublicProfilePage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, username, avatar_url, total_shards, correct_predictions, exact_predictions')
+    .select('id, username, avatar_url, active_border, total_shards, correct_predictions, exact_predictions')
     .eq('username', username)
     .single()
 
@@ -73,22 +73,18 @@ export default async function PublicProfilePage({
     }
   }
 
-  const avatarSrc = getAvatarSrc(profile.avatar_url)
-
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="container mx-auto max-w-2xl px-4 py-16 space-y-10">
 
         {/* Hero */}
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="h-24 w-24 rounded-2xl overflow-hidden border-2 border-primary/40 bg-card flex items-center justify-center shrink-0">
-            {avatarSrc ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarSrc} alt="Avatar" className="h-full w-full object-cover" />
-            ) : (
-              <User className="h-10 w-10 text-muted-foreground" />
-            )}
-          </div>
+          <AvatarWithBorder
+            avatarId={profile.avatar_url}
+            borderId={profile.active_border}
+            size="xl"
+            alt="Avatar"
+          />
           <h1 className="text-2xl font-black uppercase tracking-tighter">
             {profile.username ?? username}
           </h1>
