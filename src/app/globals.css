@@ -76,3 +76,13 @@
       'calt' 1;
   }
 }
+
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 8px #a855f7aa, 0 0 20px #06b6d466; }
+  50% { box-shadow: 0 0 16px #ec4899cc, 0 0 32px #a855f788; }
+}
+
+@keyframes phantom-pulse {
+  0%, 100% { box-shadow: 0 0 6px #ffffff22; }
+  50% { box-shadow: 0 0 18px #ffffff55; }
+}
