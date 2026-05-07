@@ -97,5 +97,6 @@ export async function equipBorder(borderId: string | null): Promise<{ error?: st
   revalidatePath('/profile/edit')
   revalidatePath('/profile')
   revalidatePath('/shop')
+  revalidatePath('/', 'layout')
   return {}
 }

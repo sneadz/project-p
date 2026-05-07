@@ -20,13 +20,15 @@ export const AUTO_BORDERS: AutoBorder[] = [
     id: 'border_bronze',
     label: 'Bronze',
     threshold: 10,
-    style: 'border-amber-700',
+    style: 'border-amber-600',
+    glowStyle: '0 0 8px #d9770655',
   },
   {
     id: 'border_silver',
     label: 'Argent',
     threshold: 25,
-    style: 'border-slate-400',
+    style: 'border-slate-300',
+    glowStyle: '0 0 8px #cbd5e155',
   },
   {
     id: 'border_gold',
