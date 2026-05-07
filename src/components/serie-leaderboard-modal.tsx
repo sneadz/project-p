@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 import { Trophy, Target, Crosshair, User, RefreshCw } from 'lucide-react'
 import { getAvatarSrc } from '@/lib/avatars'
 import { refreshSerieStats } from '@/app/actions/favorites'
@@ -148,10 +149,17 @@ export function SerieLeaderboardModal({
                         <User className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
                     </div>
-                    <span className={`flex-1 text-sm font-bold truncate ${isMe ? 'text-primary' : ''}`}>
-                      {entry.username ?? 'Joueur'}
-                      {isMe && <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">(vous)</span>}
-                    </span>
+                    {entry.username ? (
+                      <Link
+                        href={`/u/${entry.username}`}
+                        className={`flex-1 text-sm font-bold truncate hover:underline ${isMe ? 'text-primary' : ''}`}
+                      >
+                        {entry.username}
+                        {isMe && <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">(vous)</span>}
+                      </Link>
+                    ) : (
+                      <span className="flex-1 text-sm font-bold truncate text-muted-foreground">Joueur</span>
+                    )}
                     <div className="flex items-center gap-3 shrink-0">
                       <div className="flex items-center gap-1 text-green-500">
                         <Target className="h-3.5 w-3.5" />
