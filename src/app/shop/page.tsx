@@ -74,9 +74,7 @@ export default async function ShopPage() {
               return (
                 <div
                   key={border.id}
-                  className={`rounded-xl border p-4 flex flex-col items-center gap-3 transition-opacity ${
-                    isUnlocked ? 'border-border' : 'border-border/30 opacity-50'
-                  }`}
+                  className="rounded-xl border border-border p-4 flex flex-col items-center gap-3"
                 >
                   <AvatarWithBorder
                     avatarId={profile?.avatar_url ?? null}
