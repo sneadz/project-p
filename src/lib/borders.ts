@@ -4,15 +4,14 @@ export interface AutoBorder {
   id: string
   label: string
   threshold: number
-  style: string
-  glowStyle?: string
+  color: string
+  glow: string
 }
 
 export interface PurchasableBorder {
   id: string
   label: string
-  style: string
-  animationStyle?: React.CSSProperties
+  style: React.CSSProperties
 }
 
 export const AUTO_BORDERS: AutoBorder[] = [
@@ -20,29 +19,29 @@ export const AUTO_BORDERS: AutoBorder[] = [
     id: 'border_bronze',
     label: 'Bronze',
     threshold: 10,
-    style: 'border-amber-600',
-    glowStyle: '0 0 8px #d9770655',
+    color: '#d97706',
+    glow: '0 0 8px #d9770655',
   },
   {
     id: 'border_silver',
     label: 'Argent',
     threshold: 25,
-    style: 'border-slate-300',
-    glowStyle: '0 0 8px #cbd5e155',
+    color: '#94a3b8',
+    glow: '0 0 8px #94a3b855',
   },
   {
     id: 'border_gold',
     label: 'Or',
     threshold: 50,
-    style: 'border-yellow-400',
-    glowStyle: '0 0 10px #eab30855',
+    color: '#eab308',
+    glow: '0 0 10px #eab30855',
   },
   {
     id: 'border_diamond',
     label: 'Diamant',
     threshold: 100,
-    style: 'border-cyan-400',
-    glowStyle: '0 0 16px #67e8f966, 0 0 4px #67e8f9aa',
+    color: '#67e8f9',
+    glow: '0 0 16px #67e8f966, 0 0 4px #67e8f9aa',
   },
 ]
 
@@ -50,8 +49,8 @@ export const PURCHASABLE_BORDERS: PurchasableBorder[] = [
   {
     id: 'border_neon',
     label: 'Néon',
-    style: 'border-transparent',
-    animationStyle: {
+    style: {
+      borderColor: 'transparent',
       background:
         'linear-gradient(#0a0a0a, #0a0a0a) padding-box, linear-gradient(135deg, #a855f7, #06b6d4, #ec4899) border-box',
       animation: 'neon-pulse 2s ease-in-out infinite',
@@ -60,8 +59,8 @@ export const PURCHASABLE_BORDERS: PurchasableBorder[] = [
   {
     id: 'border_phantom',
     label: 'Phantom',
-    style: 'border-slate-200',
-    animationStyle: {
+    style: {
+      borderColor: '#e2e8f0',
       animation: 'phantom-pulse 2.5s ease-in-out infinite',
     },
   },
@@ -71,27 +70,18 @@ export function getUnlockedAutoBorders(correctPredictions: number): string[] {
   return AUTO_BORDERS.filter((b) => correctPredictions >= b.threshold).map((b) => b.id)
 }
 
-export function getBorderClasses(borderId: string | null): {
-  className: string
-  style?: React.CSSProperties
-} {
-  if (!borderId) return { className: 'border-primary/40' }
+export function getBorderStyle(borderId: string | null): React.CSSProperties {
+  if (!borderId) return {}
 
   const auto = AUTO_BORDERS.find((b) => b.id === borderId)
   if (auto) {
-    return {
-      className: auto.style,
-      style: auto.glowStyle ? { boxShadow: auto.glowStyle } : undefined,
-    }
+    return { borderColor: auto.color, boxShadow: auto.glow }
   }
 
   const purchasable = PURCHASABLE_BORDERS.find((b) => b.id === borderId)
   if (purchasable) {
-    return {
-      className: purchasable.style,
-      style: purchasable.animationStyle,
-    }
+    return purchasable.style
   }
 
-  return { className: 'border-primary/40' }
+  return {}
 }

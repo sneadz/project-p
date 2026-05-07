@@ -1,4 +1,4 @@
-import { getBorderClasses } from '@/lib/borders'
+import { getBorderStyle } from '@/lib/borders'
 import { getAvatarSrc } from '@/lib/avatars'
 
 interface AvatarWithBorderProps {
@@ -24,17 +24,18 @@ export function AvatarWithBorder({
   className = '',
 }: AvatarWithBorderProps) {
   const avatarSrc = getAvatarSrc(avatarId)
-  const { className: borderClass, style: borderStyle } = getBorderClasses(borderId)
+  const borderStyle = getBorderStyle(borderId)
   const { outer, inner } = SIZE_CLASSES[size]
 
   return (
-    // Outer div handles border + gradient trick — no overflow-hidden so gradient border isn't clipped
+    // border-primary/40 is the default when no border equipped
     <div
-      className={`${outer} relative border-2 shrink-0 ${borderClass} ${className}`}
-      style={borderStyle}
+      className={`${outer} relative border-2 shrink-0 ${!borderId ? 'border-primary/40' : ''} ${className}`}
+      style={borderId ? borderStyle : undefined}
     >
-      {/* Inner div handles overflow-hidden to clip avatar to border-radius */}
-      <div className={`absolute inset-0 overflow-hidden ${inner} bg-card flex items-center justify-center`}>
+      <div
+        className={`absolute inset-0 overflow-hidden ${inner} bg-card flex items-center justify-center`}
+      >
         {avatarSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={avatarSrc} alt={alt} className="h-full w-full object-cover" />
