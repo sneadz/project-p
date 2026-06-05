@@ -49,6 +49,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
   const isCanceled = match.status === 'canceled'
   const isTBD = !team1 || !team2 || match.opponents.length < 2 || isCanceled
   const hasFavorite = favoriteTeamId && (team1?.id === favoriteTeamId || team2?.id === favoriteTeamId)
+  const isGrandFinal = match.name?.toLowerCase().startsWith('grand final')
 
   const realScore = (() => {
     if ((!isFinished && !isLive) || !match.results || match.results.length < 2) return null
@@ -93,13 +94,15 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
       isLive && 'border-green-500/50 shadow-[0_0_16px_0px] shadow-green-500/20 hover:border-green-500/80',
       isFinished && 'border-muted/30 hover:border-muted/50',
       isCanceled && 'opacity-60 grayscale border-red-500/20',
-      hasFavorite && !isLive && !isCanceled && !isFinished && 'border-yellow-500/40 shadow-[0_0_20px_0px] shadow-yellow-500/10 hover:border-yellow-500/60 hover:shadow-yellow-500/20',
-      !isLive && !isCanceled && !isFinished && !hasFavorite && 'border-primary/20 hover:border-primary/50'
+      hasFavorite && !isLive && !isCanceled && !isFinished && 'border-yellow-500/60 shadow-[0_0_20px_0px] shadow-yellow-500/25 hover:border-yellow-500/80 hover:shadow-yellow-500/35',
+      isGrandFinal && !isLive && !isCanceled && !isFinished && !hasFavorite && 'border-amber-400/60 bg-card/50 dark:bg-amber-500/5 shadow-[0_0_28px_0px] shadow-amber-400/20 hover:border-amber-400/80 hover:shadow-amber-400/30',
+      isGrandFinal && !isLive && !isCanceled && !isFinished && hasFavorite && 'border-yellow-500/40 shadow-[0_0_24px_0px] shadow-yellow-500/15 shadow-[0_0_24px_0px,0_0_48px_0px] hover:border-yellow-500/60',
+      !isLive && !isCanceled && !isFinished && !hasFavorite && !isGrandFinal && 'border-primary/20 hover:border-primary/50'
     )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <Badge variant="outline" className="text-[10px] uppercase tracking-tighter text-muted-foreground border-muted-foreground/20">
-            {match.videogame.name} • BO{match.number_of_games}
+          <Badge variant="outline" className={`text-[10px] uppercase tracking-tighter ${isGrandFinal ? 'text-amber-500 border-amber-500/40 bg-amber-500/10 font-black' : 'text-muted-foreground border-muted-foreground/20'}`}>
+            {match.name?.split(':')[0] ?? match.videogame.name} • BO{match.number_of_games}
           </Badge>
           <div className="flex items-center gap-2">
             {isLive && (

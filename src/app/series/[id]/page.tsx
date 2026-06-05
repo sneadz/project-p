@@ -175,10 +175,23 @@ export default async function SeriePage({ params }: SeriePageProps) {
     return dateA - dateB
   })
 
+  // Phases ayant démarré (au moins un match finished ou running)
+  const startedPhases = new Set(
+    Object.entries(matchesByTournament)
+      .filter(([, phaseMatches]) =>
+        phaseMatches.some((m) => m.status === 'finished' || m.status === 'running')
+      )
+      .map(([name]) => name)
+  )
+
+  // Déterminer si le tournoi a démarré
+  const serieStarted = matches.some((m) => m.status === 'running' || m.status === 'finished')
+
   // Extraire les équipes depuis les matchs groupées par phase
   const teamsMap = new Map<string, TeamSummary>()
   for (const match of matches) {
     const phase = match.tournament?.name || 'Participants'
+    if (serieStarted && startedPhases.size > 0 && !startedPhases.has(phase)) continue
     for (const opp of match.opponents ?? []) {
       const team = opp.opponent
       if (!team) continue
@@ -218,8 +231,6 @@ export default async function SeriePage({ params }: SeriePageProps) {
   const teams = Array.from(teamsMap.values())
   const favoriteTeam = favoriteTeamId ? (teams.find((t) => t.id === favoriteTeamId) ?? null) : null
 
-  // Déterminer si le tournoi a démarré
-  const serieStarted = matches.some((m) => m.status === 'running' || m.status === 'finished')
 
   // Équipes encore actives (apparaissent dans un match à venir ou en cours)
   const activeTeamIds = new Set<number>()

@@ -102,7 +102,7 @@ export function MatchBettingSection({
       <div className="flex-1 pt-4 flex flex-col">
         <div className="flex-1 flex items-center justify-center rounded-lg bg-muted/15 border border-dashed border-muted/40">
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            {isCanceled ? 'Match Annulé' : 'Équipes à déterminer'}
+            {isCanceled ? 'Match annulé' : 'En attente des équipes'}
           </span>
         </div>
       </div>

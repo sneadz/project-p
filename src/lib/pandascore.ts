@@ -85,18 +85,29 @@ export async function getMatchesBySerie(serieId: number): Promise<PandaScoreMatc
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/series/${serieId}/matches?sort=begin_at`, {
-      headers: {
-        Authorization: `Bearer ${PANDASCORE_API_KEY}`,
-      },
-      next: { revalidate: 600 }, // Cache for 10 minutes
-    })
+    const PER_PAGE = 100
+    const firstRes = await fetch(
+      `${BASE_URL}/series/${serieId}/matches?sort=begin_at&per_page=${PER_PAGE}&page=1`,
+      { headers: { Authorization: `Bearer ${PANDASCORE_API_KEY}` }, next: { revalidate: 600 } }
+    )
+    if (!firstRes.ok) throw new Error('Failed to fetch matches for serie')
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch matches for serie')
-    }
+    const total = parseInt(firstRes.headers.get('x-total') ?? '0', 10)
+    const firstPage: PandaScoreMatch[] = await firstRes.json()
 
-    return response.json()
+    if (total <= PER_PAGE) return firstPage
+
+    const pageCount = Math.ceil(total / PER_PAGE)
+    const rest = await Promise.all(
+      Array.from({ length: pageCount - 1 }, (_, i) =>
+        fetch(
+          `${BASE_URL}/series/${serieId}/matches?sort=begin_at&per_page=${PER_PAGE}&page=${i + 2}`,
+          { headers: { Authorization: `Bearer ${PANDASCORE_API_KEY}` }, next: { revalidate: 600 } }
+        ).then((r) => r.json() as Promise<PandaScoreMatch[]>)
+      )
+    )
+
+    return [...firstPage, ...rest.flat()]
   } catch (error) {
     console.error('Error fetching matches by serie:', error)
     return []
