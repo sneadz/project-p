@@ -26,6 +26,7 @@ interface SeriePageHeaderProps {
   favoriteTeamId: number | null
   serieStarted: boolean
   activeTeamIds: number[]
+  qualifiedTeamIds: number[]
   leaderboardEntries: LeaderboardEntry[]
   currentUserId?: string
   userCorrect: number
@@ -47,6 +48,7 @@ export function SeriePageHeader({
   favoriteTeamId,
   serieStarted,
   activeTeamIds,
+  qualifiedTeamIds,
   leaderboardEntries,
   currentUserId,
   userCorrect,
@@ -136,6 +138,7 @@ export function SeriePageHeader({
                 currentFavoriteTeamId={favoriteTeamId}
                 serieStarted={serieStarted}
                 activeTeamIds={activeTeamIds}
+                qualifiedTeamIds={qualifiedTeamIds}
               />
               <SerieLeaderboardModal
                 serieId={serieId}

@@ -30,6 +30,7 @@ interface TeamsModalProps {
   currentFavoriteTeamId?: number | null
   serieStarted: boolean
   activeTeamIds: number[]
+  qualifiedTeamIds?: number[]
 }
 
 export function TeamsModal({
@@ -39,12 +40,14 @@ export function TeamsModal({
   currentFavoriteTeamId,
   serieStarted,
   activeTeamIds,
+  qualifiedTeamIds = [],
 }: TeamsModalProps) {
   const [open, setOpen] = useState(false)
   const [favoriteId, setFavoriteId] = useState<number | null>(currentFavoriteTeamId ?? null)
   const [isPending, startTransition] = useTransition()
 
   const activeSet = new Set(activeTeamIds)
+  const qualifiedSet = new Set(qualifiedTeamIds)
 
   // Dédoublonner par id, trier : favori en premier, puis actifs par wins, puis éliminés
   const uniqueTeams = Array.from(new Map(teams.map((t) => [t.id, t])).values()).sort((a, b) => {
@@ -118,7 +121,8 @@ export function TeamsModal({
             {uniqueTeams.map((team) => {
               const isFavorite = favoriteId === team.id
               const isActive = activeTeamIds.length === 0 || activeSet.has(team.id)
-              const isEliminated = serieStarted && !isActive
+              const isQualified = qualifiedSet.has(team.id)
+              const isEliminated = serieStarted && !isActive && !isQualified
               const total = team.wins + team.losses
               const canPick = !serieStarted && isLoggedIn
 
@@ -133,11 +137,13 @@ export function TeamsModal({
                         ? 'bg-primary/10 border-primary/60 shadow-[0_0_16px_2px] shadow-primary/25'
                         : isFavorite && isEliminated
                           ? 'bg-primary/5 border-primary/30 shadow-[0_0_12px_1px] shadow-primary/15'
-                          : isEliminated
-                            ? 'bg-muted/5 border-border/20 opacity-40'
-                            : canPick
-                              ? 'bg-card/50 border-border/40 hover:border-primary/30 hover:bg-card/80 cursor-pointer'
-                              : 'bg-card/50 border-border/40 cursor-default'
+                          : isQualified
+                            ? 'bg-green-500/5 border-green-500/30'
+                            : isEliminated
+                              ? 'bg-muted/5 border-border/20 opacity-40'
+                              : canPick
+                                ? 'bg-card/50 border-border/40 hover:border-primary/30 hover:bg-card/80 cursor-pointer'
+                                : 'bg-card/50 border-border/40 cursor-default'
                     }`}
                 >
                   {/* Logo */}
@@ -154,12 +160,17 @@ export function TeamsModal({
 
                   {/* Nom */}
                   <span
-                    className={`font-bold text-sm flex-1 truncate ${isFavorite ? 'text-primary' : isEliminated ? 'text-muted-foreground' : ''}`}
+                    className={`font-bold text-sm flex-1 truncate ${isFavorite ? 'text-primary' : isQualified ? 'text-green-400' : isEliminated ? 'text-muted-foreground' : ''}`}
                   >
                     {team.name}
                   </span>
 
-                  {/* Badge éliminé */}
+                  {/* Badge statut */}
+                  {isQualified && !isFavorite && (
+                    <span className="text-[10px] text-green-400 font-mono uppercase shrink-0">
+                      Qualifié
+                    </span>
+                  )}
                   {isEliminated && !isFavorite && (
                     <span className="text-[10px] text-muted-foreground font-mono uppercase shrink-0">
                       Éliminé

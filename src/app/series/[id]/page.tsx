@@ -231,6 +231,24 @@ export default async function SeriePage({ params }: SeriePageProps) {
     }
   }
 
+  // Phases Swiss : matchs dont le nom commence par "Round "
+  const swissPhases = new Set(
+    matches
+      .filter((m) => m.name?.startsWith('Round '))
+      .map((m) => m.tournament?.name || '')
+      .filter(Boolean)
+  )
+
+  // Équipes qualifiées dans un Swiss (3 victoires dans leur phase)
+  const qualifiedTeamIds = new Set<number>()
+  if (swissPhases.size > 0) {
+    for (const team of teams) {
+      if (swissPhases.has(team.phase) && team.wins >= 3 && !activeTeamIds.has(team.id)) {
+        qualifiedTeamIds.add(team.id)
+      }
+    }
+  }
+
   // Trouver le premier match non terminé et non annulé pour le scroll automatique
   const firstUpcomingMatch = matches.find((m) => m.status !== 'finished' && m.status !== 'canceled')
 
@@ -269,6 +287,7 @@ export default async function SeriePage({ params }: SeriePageProps) {
         favoriteTeamId={favoriteTeamId}
         serieStarted={serieStarted}
         activeTeamIds={Array.from(activeTeamIds)}
+        qualifiedTeamIds={Array.from(qualifiedTeamIds)}
         leaderboardEntries={leaderboardEntries}
         currentUserId={user?.id}
         userCorrect={userCorrect}
