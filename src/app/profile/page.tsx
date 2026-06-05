@@ -169,8 +169,8 @@ export default async function ProfilePage() {
     { label: 'Prédictions réussies', value: correctWinner.toString() },
     { label: 'Scores exacts', value: exactScore.toString() },
     { label: 'Shards totaux', value: totalShards.toString(), icon: true },
-    { label: 'Winrate', value: finishedBets > 0 ? `${winRate}%` : '—' },
-    { label: 'Rang global', value: totalPredictions > 0 ? rankDisplay : '—' },
+    { label: 'Winrate', value: finishedBets > 0 ? `${winRate}%` : '-' },
+    { label: 'Rang global', value: totalPredictions > 0 ? rankDisplay : '-' },
   ]
 
   return (

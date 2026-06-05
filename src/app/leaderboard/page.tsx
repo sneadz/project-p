@@ -26,21 +26,21 @@ const RANK_STYLE: Record<
   { card: string; avatarSize: 'sm' | 'md' | 'lg'; name: string; shards: string; emoji: string }
 > = {
   1: {
-    card: 'bg-card border-yellow-400/30 shadow-[0_0_20px_0px] shadow-yellow-400/10 px-6 py-5 -mx-8',
+    card: 'bg-card border-yellow-400/30 shadow-[0_0_20px_0px] shadow-yellow-400/10 px-4 py-4 md:px-6 md:py-5 md:-mx-8',
     avatarSize: 'lg',
     name: 'text-lg font-black',
     shards: 'text-base',
     emoji: 'text-3xl',
   },
   2: {
-    card: 'bg-card border-slate-400/20 shadow-sm px-5 py-4 -mx-5',
+    card: 'bg-card border-slate-400/20 shadow-sm px-4 py-3 md:px-5 md:py-4 md:-mx-5',
     avatarSize: 'md',
     name: 'text-base font-black',
     shards: 'text-sm',
     emoji: 'text-2xl',
   },
   3: {
-    card: 'bg-card border-amber-600/20 shadow-sm px-5 py-3.5 -mx-2',
+    card: 'bg-card border-amber-600/20 shadow-sm px-4 py-3 md:px-5 md:py-3.5 md:-mx-2',
     avatarSize: 'md',
     name: 'text-sm font-black',
     shards: 'text-sm',

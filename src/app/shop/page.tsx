@@ -4,7 +4,7 @@ import { AVATARS } from '@/lib/avatars'
 import { AvatarWithBorder } from '@/components/avatar-with-border'
 import { ShopBuyButton } from '@/components/shop-buy-button'
 import { ShopEquipButton } from '@/components/shop-equip-button'
-import { Gem } from 'lucide-react'
+import { Gem, Target } from 'lucide-react'
 
 const PURCHASABLE_PRICES: Record<string, number> = {
   border_neon: 150,
@@ -50,19 +50,34 @@ export default async function ShopPage() {
           <p className="text-muted-foreground text-sm">
             Dépense tes shards pour des cosmétiques.
           </p>
-          {profile && (
-            <div className="flex items-center gap-2 text-sm font-bold">
-              <Gem className="h-4 w-4 text-cyan-400" />
-              <span className="text-cyan-400">{profile.total_shards ?? 0}</span>
-              <span className="text-muted-foreground">shards disponibles</span>
-            </div>
-          )}
+          {profile && (() => {
+            const correct = profile.correct_predictions ?? 0
+            const nextBorder = AUTO_BORDERS.find((b) => b.threshold > correct)
+            return (
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm">
+                  <Gem className="h-4 w-4 text-cyan-400" />
+                  <span className="text-cyan-400">{profile.total_shards ?? 0}</span>
+                  <span className="text-muted-foreground">shards disponibles</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Target className="h-4 w-4 text-green-500" />
+                  <span className="font-bold text-green-500">{correct}</span>
+                  <span className="text-muted-foreground">
+                    paris réussis{nextBorder && (
+                      <> · encore <span className="font-bold text-foreground">{nextBorder.threshold - correct}</span> pour débloquer la bordure {nextBorder.label}</>
+                    )}
+                  </span>
+                </div>
+              </div>
+            )
+          })()}
         </div>
 
         {/* Bordures auto */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-black uppercase tracking-tight">Bordures — Paliers</h2>
+            <h2 className="text-xl font-black uppercase tracking-tight">Bordures - Paliers</h2>
             <p className="text-xs text-muted-foreground mt-1">
               Débloquées automatiquement selon le nombre de paris réussis.
             </p>
@@ -107,7 +122,7 @@ export default async function ShopPage() {
         {/* Bordures achetables */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-black uppercase tracking-tight">Bordures — Boutique</h2>
+            <h2 className="text-xl font-black uppercase tracking-tight">Bordures - Boutique</h2>
             <p className="text-xs text-muted-foreground mt-1">Bordures animées achetables en shards.</p>
           </div>
           <div className="grid grid-cols-2 gap-3">

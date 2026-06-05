@@ -2,11 +2,14 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Trophy, BarChart2 } from 'lucide-react'
+import { Trophy, BarChart2, Store, Users, Shield } from 'lucide-react'
 
 const navItems = [
   { href: '/', label: 'Compétitions', icon: Trophy },
-  { href: '/profile', label: 'Statistiques', icon: BarChart2 },
+  { href: '/leaderboard', label: 'Classement', icon: BarChart2 },
+  { href: '/shop', label: 'Boutique', icon: Store },
+  { href: '/friends', label: 'Amis', icon: Users },
+  { href: '/leagues', label: 'Ligues', icon: Shield },
 ]
 
 export function MobileNav() {
@@ -21,7 +24,7 @@ export function MobileNav() {
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-lg transition-colors
+              className={`flex-1 flex flex-col items-center gap-1 py-1.5 rounded-lg transition-colors
                 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
             >
               <Icon className="h-5 w-5" />

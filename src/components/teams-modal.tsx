@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Users, Star, Gem, Lock } from 'lucide-react'
+import { TeamImage } from '@/components/team-image'
 import { setFavoriteTeam } from '@/app/actions/competition'
 import { toast } from '@/hooks/use-toast'
 
@@ -87,8 +88,8 @@ export function TeamsModal({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-lg p-0 overflow-hidden">
-        <div className="overflow-y-auto max-h-[80vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-6">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-lg p-0 overflow-hidden">
+        <div className="overflow-y-auto max-h-[75vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-4 sm:p-6">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl font-black uppercase tracking-widest">
               Équipes participantes
@@ -143,16 +144,12 @@ export function TeamsModal({
                   <div
                     className={`h-10 w-10 rounded-lg overflow-hidden border flex items-center justify-center shrink-0 bg-zinc-200 dark:bg-zinc-800 ${isEliminated ? 'border-border/20 opacity-60' : 'border-border/40'}`}
                   >
-                    {team.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={team.image_url}
-                        alt={team.name}
-                        className={`h-full w-full object-contain p-1 ${isEliminated ? 'grayscale' : ''}`}
-                      />
-                    ) : (
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    )}
+                    <TeamImage
+                      src={team.image_url}
+                      name={team.name}
+                      size={32}
+                      className={`p-1 ${isEliminated ? 'grayscale' : ''}`}
+                    />
                   </div>
 
                   {/* Nom */}

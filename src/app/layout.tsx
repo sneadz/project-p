@@ -45,7 +45,7 @@ export default function RootLayout({
             {/* Sidebar flottante */}
             <Sidebar />
 
-            {/* Bloc principal flottant — scroll interne */}
+            {/* Bloc principal flottant - scroll interne */}
             <main className="flex-1 min-w-0 rounded-2xl bg-card dark:bg-[hsl(220_6%_11%)] overflow-y-auto scrollbar-none shadow-[0_8px_32px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
               {children}
             </main>

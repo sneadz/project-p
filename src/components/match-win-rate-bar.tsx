@@ -7,8 +7,8 @@ interface MatchWinRateBarProps {
 }
 
 export function MatchWinRateBar({ team1Id, team2Id, winRates }: MatchWinRateBarProps) {
-  const r1 = winRates[team1Id]
-  const r2 = winRates[team2Id]
+  const r1 = winRates[team1Id] ?? null
+  const r2 = winRates[team2Id] ?? null
   if (r1 === null && r2 === null) return null
 
   const v1 = r1 ?? 50

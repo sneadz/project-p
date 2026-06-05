@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Star, Search, X, Plus, Loader2 } from 'lucide-react'
+import { TeamImage } from '@/components/team-image'
 import { addGlobalFavorite, removeGlobalFavorite, searchTeamsAction } from '@/app/actions/favorites'
 import { toast } from '@/hooks/use-toast'
 import { PandaScoreTeam } from '@/types/pandascore'
@@ -95,7 +96,7 @@ export function GlobalFavoritesModal({ initialFavorites, isLoggedIn }: GlobalFav
               Équipes favorites
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              Suis jusqu&apos;à {MAX_FAVORITES} équipes — leurs compétitions apparaîtront en priorité sur la home.
+              Suis jusqu&apos;à {MAX_FAVORITES} équipes - leurs compétitions apparaîtront en priorité sur la home.
             </p>
           </DialogHeader>
 
@@ -108,12 +109,7 @@ export function GlobalFavoritesModal({ initialFavorites, isLoggedIn }: GlobalFav
               {favorites.map((fav) => (
                 <div key={fav.team_id} className="flex items-center gap-3 p-2.5 rounded-xl border border-yellow-500/30 bg-yellow-500/5">
                   <div className="h-9 w-9 rounded-lg overflow-hidden border border-yellow-500/20 bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center shrink-0">
-                    {fav.team_image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={fav.team_image_url} alt={fav.team_name} className="h-full w-full object-contain p-1" />
-                    ) : (
-                      <Star className="h-4 w-4 text-yellow-500" />
-                    )}
+                    <TeamImage src={fav.team_image_url} name={fav.team_name} size={32} className="p-1" />
                   </div>
                   <span className="flex-1 text-sm font-bold truncate">{fav.team_name}</span>
                   <button
@@ -157,12 +153,7 @@ export function GlobalFavoritesModal({ initialFavorites, isLoggedIn }: GlobalFav
                         className="flex items-center gap-3 p-2.5 rounded-xl border border-border/40 bg-card/50"
                       >
                         <div className="h-9 w-9 rounded-lg overflow-hidden border border-border/40 bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center shrink-0">
-                          {team.image_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={team.image_url} alt={team.name} className="h-full w-full object-contain p-1" />
-                          ) : (
-                            <Star className="h-4 w-4 text-muted-foreground" />
-                          )}
+                          <TeamImage src={team.image_url} name={team.name} size={32} className="p-1" />
                         </div>
                         <div className="flex-1 flex items-center gap-2 min-w-0">
                           <span className="text-sm font-bold truncate">{team.name}</span>

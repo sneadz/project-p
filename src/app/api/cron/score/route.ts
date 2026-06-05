@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     const results: { serie_id: number; updated: number; skipped: boolean }[] = []
 
     for (const serieId of serieIds) {
-      // Récupérer les matchs — skip si aucun match terminé
+      // Récupérer les matchs - skip si aucun match terminé
       const matches = await getMatchesBySerie(serieId).catch(() => [])
       if (!matches.some((m) => m.status === 'finished')) {
         results.push({ serie_id: serieId, updated: 0, skipped: true })

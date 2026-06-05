@@ -58,7 +58,7 @@ export function SeriePageHeader({
       <div className="absolute inset-0 bg-primary/10 -skew-y-3 transform origin-top-left -z-10"></div>
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-start justify-between gap-8">
-          {/* Logo jeu — centré sur mobile */}
+          {/* Logo jeu - centré sur mobile */}
           <div className="relative h-28 w-28 md:h-48 md:w-48 flex-shrink-0 rounded-2xl bg-card/50 border border-primary/20 backdrop-blur shadow-2xl flex items-center justify-center overflow-hidden self-center md:self-start mx-auto md:mx-0">
             {gameSquare ? (
               <Image
@@ -148,7 +148,7 @@ export function SeriePageHeader({
             </div>
           </div>
 
-          {/* Favori — à droite sur desktop, inline sur mobile */}
+          {/* Favori - à droite sur desktop, inline sur mobile */}
           {favoriteTeam && (
             <div className="flex flex-col items-center gap-2 shrink-0 self-center md:self-start mx-auto md:mx-0">
               <div className="relative h-28 w-28 md:h-20 md:w-20">

@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Client avec le service role key — bypass RLS, à utiliser uniquement côté serveur
+// Client avec le service role key - bypass RLS, à utiliser uniquement côté serveur
 // NE JAMAIS exposer ce client au navigateur
 export function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL

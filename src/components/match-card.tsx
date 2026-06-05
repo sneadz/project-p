@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PandaScoreMatch } from '@/types/pandascore'
 import { Badge } from '@/components/ui/badge'
-import Image from 'next/image'
+import { TeamImage } from '@/components/team-image'
 import { cn } from '@/lib/utils'
 import { placeBet } from '@/app/actions/competition'
 import { calculateMatchShards, generateScores } from '@/lib/scoring'
@@ -124,11 +124,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
         <div className="flex items-center justify-between gap-4 relative">
           <div className="flex flex-1 flex-col items-center gap-3">
             <div className="relative flex h-16 w-16 items-center justify-center rounded-xl bg-zinc-200 dark:bg-zinc-800 border border-primary/10 p-2 transition-transform group-hover:scale-105">
-              {team1?.image_url ? (
-                <Image src={team1.image_url} alt={team1.name} width={48} height={48} className="object-contain" />
-              ) : (
-                <div className="text-[10px] font-bold text-muted-foreground">T1</div>
-              )}
+              <TeamImage src={team1?.image_url} name={team1?.name || 'T1'} size={48} />
             </div>
             <span className="text-center text-[10px] font-black uppercase tracking-tighter line-clamp-1 w-full">
               {team1?.name || 'À DÉTERMINER'}
@@ -145,11 +141,7 @@ export function MatchCard({ match, userBet, isJoined, serieId, winRates, favorit
 
           <div className="flex flex-1 flex-col items-center gap-3">
             <div className="relative flex h-16 w-16 items-center justify-center rounded-xl bg-zinc-200 dark:bg-zinc-800 border border-primary/10 p-2 transition-transform group-hover:scale-105">
-              {team2?.image_url ? (
-                <Image src={team2.image_url} alt={team2.name} width={48} height={48} className="object-contain" />
-              ) : (
-                <div className="text-[10px] font-bold text-muted-foreground">T2</div>
-              )}
+              <TeamImage src={team2?.image_url} name={team2?.name || 'T2'} size={48} />
             </div>
             <span className="text-center text-[10px] font-black uppercase tracking-tighter line-clamp-1 w-full">
               {team2?.name || 'À DÉTERMINER'}

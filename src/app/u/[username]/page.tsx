@@ -89,7 +89,7 @@ export default async function PublicProfilePage({
             {profile.username ?? username}
           </h1>
 
-          {/* Friend button — 5 states */}
+          {/* Friend button - 5 states */}
           {!user && (
             <Button disabled variant="outline" size="sm" className="gap-2">
               <UserPlus className="h-3.5 w-3.5" />
@@ -163,13 +163,13 @@ export default async function PublicProfilePage({
           <div className="rounded-lg border border-border bg-card p-5 text-center space-y-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Rang global</p>
             <p className="text-3xl font-black text-yellow-500">
-              {profile.correct_predictions > 0 ? `#${rank}` : '—'}
+              {profile.correct_predictions > 0 ? `#${rank}` : '-'}
             </p>
           </div>
           <div className="rounded-lg border border-border bg-card p-5 text-center space-y-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Winrate</p>
             <p className="text-3xl font-black text-green-500">
-              {winrate !== null ? `${winrate}%` : '—'}
+              {winrate !== null ? `${winrate}%` : '-'}
             </p>
           </div>
         </div>
@@ -178,7 +178,7 @@ export default async function PublicProfilePage({
         <div className="grid grid-cols-4 gap-3">
           <div className="rounded-lg border border-border bg-card p-3 text-center space-y-1">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Paris</p>
-            <p className="text-xl font-black">{totalBets || '—'}</p>
+            <p className="text-xl font-black">{totalBets || '-'}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-3 text-center space-y-1">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Réussis</p>

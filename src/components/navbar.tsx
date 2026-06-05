@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { User, Trophy } from 'lucide-react'
+import { User, Trophy, Store, Users, Shield } from 'lucide-react'
 
 export default async function Navbar() {
   const supabase = await createClient()
@@ -32,16 +32,29 @@ export default async function Navbar() {
             PROJECT P
           </h1>
         </Link>
-        <div className="flex items-center gap-3">
-          <Link href="/leaderboard" className="hidden sm:flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
-            <Trophy className="h-4 w-4" />
-            Classement
-          </Link>
-          {user && (
-            <Link href="/friends" className="hidden sm:flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
-              Amis
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-6">
+            <Link href="/leaderboard" className="flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+              <Trophy className="h-4 w-4" />
+              Classement
             </Link>
-          )}
+            {user && (
+              <>
+                <Link href="/friends" className="flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                  <Users className="h-4 w-4" />
+                  Amis
+                </Link>
+                <Link href="/leagues" className="flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                  <Shield className="h-4 w-4" />
+                  Ligues
+                </Link>
+              </>
+            )}
+            <Link href="/shop" className="flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+              <Store className="h-4 w-4" />
+              Boutique
+            </Link>
+          </div>
           {user ? (
             <>
               <span className="text-sm font-medium hidden sm:block truncate max-w-[160px]">

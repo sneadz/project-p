@@ -75,12 +75,10 @@ export default async function SeriePage({ params }: SeriePageProps) {
     }
   }
 
-  // On récupère les infos de la série via l'API directe ou le cache
-  const serie = await getSerieById(serieId)
-
-  // Si on n'a pas pu récupérer la série, on tente quand même les matchs
-  // mais si les deux échouent, là on affiche un 404
-  const matches = await getMatchesBySerie(serieId).catch(() => [])
+  const [serie, matches] = await Promise.all([
+    getSerieById(serieId),
+    getMatchesBySerie(serieId).catch(() => [] as PandaScoreMatch[]),
+  ])
 
   // Calcul des points totaux + stats pour l'UI
   let userCorrect = 0
@@ -285,9 +283,6 @@ export default async function SeriePage({ params }: SeriePageProps) {
             <div className="h-8 w-1 bg-primary"></div>
             <h3 className="text-2xl font-black uppercase tracking-widest">Calendrier</h3>
           </div>
-          <span className="text-xs font-mono text-muted-foreground uppercase">
-            {matches.length} MATCHS TROUVÉS
-          </span>
         </div>
 
         {sortedTournamentNames.length > 0 ? (
